@@ -1,7 +1,6 @@
 
 <launch>
   <!-- Map server -->
-  <arg name="custom_param_file" default="$(find ping_pong_robot)/param/dummy.yaml"/>
   <arg name="map_file" default="$(env TURTLEBOT_GAZEBO_MAP_FILE)"/>
   <!--<arg name="3d_sensor" default="$(env TURTLEBOT_3D_SENSOR)"/>-->  <!-- r200, kinect, asus_xtion_pro -->
   <arg name="3d_sensor" default="rplidar"/>
@@ -20,7 +19,5 @@
   </include>
 
   <!-- Move base -->
-  <include file="$(find turtlebot_navigation)/launch/includes/move_base.launch.xml">
-   <arg name="custom_param_file" value="$(arg custom_param_file)"/>
- </include>
+ <include file="$(find ping_pong_robot)/launch/includes/move_base.launch.xml"/>
 </launch>
