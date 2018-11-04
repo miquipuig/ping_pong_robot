@@ -9,6 +9,9 @@ project(ping_pong_robot)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   move_base
+  actionlib
+  move_base_msgs
+  roscpp
 )
 
 ## System dependencies are found with CMake's conventions
@@ -195,3 +198,5 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+add_executable(simple_navigation_goals src/simple_navigation_goals.cpp)
+target_link_libraries(simple_navigation_goals ${catkin_LIBRARIES})

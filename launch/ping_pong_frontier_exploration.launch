@@ -1,8 +1,8 @@
 <launch>
   <!-- Start frontier_exploration -->
-  <include file="$(find ping_pong_robot)/launch/global_map.launch" />
+  <include file="$(find ping_pong_robot)/launch/includes/global_map.launch" />
 
   <!-- Start frontier_exploration -->
-  <include file="$(find turtlebot_rviz_launchers)/launch/view_navigation.launch" /> 
+  <include file="$(find turtlebot_rviz_launchers)/launch/view_navigation.launch" />
 
 </launch>
