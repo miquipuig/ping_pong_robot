@@ -12,7 +12,12 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   move_base_msgs
   roscpp
+  rospy
+  image_transport
+  cv_bridge
 )
+
+find_package(OpenCV REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -104,11 +109,11 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES ping_pong_robot
-#  CATKIN_DEPENDS move_base
-#  DEPENDS system_lib
-)
+      CATKIN_DEPENDS
+            roscpp
+            rospy
+            image_transport
+            cv_bridge)
 
 ###########
 ## Build ##
@@ -200,3 +205,5 @@ include_directories(
 # catkin_add_nosetests(test)
 add_executable(simple_navigation_goals src/simple_navigation_goals.cpp)
 target_link_libraries(simple_navigation_goals ${catkin_LIBRARIES})
+add_executable(kidnapping src/kidnapping.cpp)
+target_link_libraries(kidnapping ${catkin_LIBRARIES})
