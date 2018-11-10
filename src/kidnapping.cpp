@@ -27,7 +27,7 @@ move_base_msgs::MoveBaseGoal goal;
 bool moves(move_base_msgs::MoveBaseGoal goals){
 MoveBaseClient ac("move_base", true);
   goals.target_pose.header.stamp = ros::Time::now();
-      ROS_INFO("Enviar goal");
+      //ROS_INFO("Enviar goal");
 
       while(!ac.waitForServer(ros::Duration(5.0))){
         ROS_INFO("Waiting for the move_base action server to come up");
@@ -38,7 +38,7 @@ MoveBaseClient ac("move_base", true);
            return true;}
       else{
            return false;}*/
-             ROS_INFO("Goal enviado");
+      //ROS_INFO("Goal enviado");
       return true;
 }
 
@@ -50,7 +50,7 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
     double Cyx= vector.pose.covariance[7];
     //double Cy1= ¡
     if (fabs(Cx)>C_LIMIT || fabs(Cy)>C_LIMIT || fabs(Cyx)>C_LIMIT ||fabs(Cxy)>C_LIMIT ){
-      ROS_INFO("Limite superado %lf", Cx );
+      //ROS_INFO("Limite superado %lf", Cx );
       if(perdido==false){
         ROS_INFO("Me estoy perdiendo");
         goal.target_pose.header.frame_id = "map";
@@ -65,7 +65,7 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
        perdido=true;
 
     }else{
-        ROS_INFO("Limite no superado %lf", Cx);
+        //ROS_INFO("Limite no superado %lf", Cx);
       if(fabs(Cx)>C_LIMIT_D || fabs(Cy)>C_LIMIT_D || fabs(Cyx)>C_LIMIT_D ||fabs(Cxy)>C_LIMIT_D ){
         if(perdido==true){
           ROS_INFO("Ya se donde estoy");
