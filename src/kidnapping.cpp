@@ -18,6 +18,7 @@ std_msgs::Float64* covariance = new std_msgs::Float64[36]();
 geometry_msgs::PoseWithCovariance pose;
 
 const double C_LIMIT = 0.09;
+const double C_LIMIT_D = 0.05;
 bool perdido =false;
 
 
@@ -48,12 +49,11 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
     double Cy= vector.pose.covariance[6];
     double Cyx= vector.pose.covariance[7];
     //double Cy1= ¡
-    if (fabs(Cx)>C_LIMIT || fabs(Cy)>C_LIMIT){
+    if (fabs(Cx)>C_LIMIT || fabs(Cy)>C_LIMIT || fabs(Cyx)>C_LIMIT ||fabs(Cxy)>C_LIMIT ){
       ROS_INFO("Limite superado %lf", Cx );
       if(perdido==false){
         ROS_INFO("Me estoy perdiendo");
         goal.target_pose.header.frame_id = "map";
-        goal.target_pose.header.stamp = ros::Time::now();
         goal.target_pose.pose.position.x = -0.4;
         goal.target_pose.pose.position.y = -0.4;
         goal.target_pose.pose.orientation.w = 1.5;
@@ -66,12 +66,11 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
 
     }else{
         ROS_INFO("Limite no superado %lf", Cx);
-      if(fabs(Cx)>C_LIMIT-0.03 || fabs(Cy)>C_LIMIT-0.03){
+      if(fabs(Cx)>C_LIMIT_D || fabs(Cy)>C_LIMIT_D || fabs(Cyx)>C_LIMIT_D ||fabs(Cxy)>C_LIMIT_D ){
         if(perdido==true){
           ROS_INFO("Ya se donde estoy");
           //parar
           goal.target_pose.header.frame_id = "base_link";
-          goal.target_pose.header.stamp = ros::Time::now();
           goal.target_pose.pose.position.x = 0.0;
           goal.target_pose.pose.position.y = 0.0;
           goal.target_pose.pose.orientation.w = 1.0;
