@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+  <script src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
+  <script src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+
+  <script>
+  // Connecting to ROS
+  // -----------------
+  var ros = new ROSLIB.Ros();
+
+  // Create a connection to the rosbridge WebSocket server.
+  ros.connect('ws://localhost:9090');
+
+  //Subscribing to a Topic
+  //----------------------
+
+  // We first create a Topic object with details of the topic's name
+  // and message type. Note that we can call publish or subscribe on the same topic object.
+  var talker = new ROSLIB.Topic({
+    ros : ros,
+    name : '/control',
+    messageType : 'std_msgs/String'
+  });
+
+  var index = 0;
+  $(document).ready(function () {
+   $("#button1").click(function() {
+     var string = new ROSLIB.Message({
+       data : "Exploration"
+     });
+     talker.publish(string);
+     console.log("publishing..." + string.data);
+     $(this).button('reset');
+   });
+   $("#button2").click(function() {
+     var string = new ROSLIB.Message({
+       data : "Home"
+     });
+     talker.publish(string);
+     console.log("publishing..." + string.data);
+     $(this).button('reset');
+   });
+   $("#button3").click(function() {
+     var string = new ROSLIB.Message({
+       data : "Stop"
+     });
+     talker.publish(string);
+     console.log("publishing..." + string.data);
+     $(this).button('reset');
+   });
+
+
+  });
+  </script>
+</head>
+
+<body>
+  <h1></h1>
+  <div id="modal" class="container">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Ping-Pong Robot
+      </div>
+      <div class="panel-body">
+
+        <p> Controles del robot</p>
+        <button type="button" id="button1"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Exploration</button>
+        <button type="button" id="button2"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Go Home</button>
+        <button type="button" id="button3"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Stop</button>
+      </div>
+      </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<launch>
+  <!-- Se requiere instalar roswww, rosbridge_suite y rosauth
+  para provar puedes ir a:
+  http://localhost:8085/ping_pong_robot
+
+  publica en el topico control. Para ver el estado puedes revisar:
+  rostopic echo /control
+  -->
+
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+  <include file="$(find roswww)/launch/roswww.launch" />
+
+</launch>
