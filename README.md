@@ -11,3 +11,8 @@ Lanzamos:
 * roslaunch ping_pong_robot ping_pong_world.launch
 * roslaunch ping_pong_robot ping_pong_amcl.launch
 * roslaunch turtlebot_rviz_launchers view_navigation.launch --screen
+
+### Ejecutar rutina de Kidnapping (light: vuelve a casa):
+Lanzamos:
+* rosrun ping_pong_robot kidnapping
+
