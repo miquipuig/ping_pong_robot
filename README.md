@@ -6,7 +6,7 @@ Lanzamos:
 * roslaunch ping_pong_robot ping_pong_amcl.launch
 * roslaunch turtlebot_rviz_launchers view_navigation.launch --screen
 
-### Simulación con rplidar  y con errores
+### Simulación con rplidar y con errores ((laser 360º)
 Lanzamos:
 * roslaunch ping_pong_robot ping_pong_world.launch
 * roslaunch ping_pong_robot ping_pong_amcl.launch
