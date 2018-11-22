@@ -10,10 +10,11 @@
   <xacro:include filename="$(find kobuki_description)/urdf/kobuki.urdf.xacro" />
   <xacro:include filename="$(find turtlebot_description)/urdf/stacks/hexagons.urdf.xacro"/>
   <xacro:include filename="$(find ping_pong_robot)/urdf/sensors/rplidar.urdf.xacro" />
-    <xacro:include filename="$(find ping_pong_robot)/urdf/sensors/camera.urdf.xacro" />
 
   <kobuki/>
-
+	<xacro:generic_camera parent="base_link" name="camera">
+  		<origin xyz="-0.5 0 0.420" rpy="3.1415 0 1.5707"/>
+  </xacro:generic_camera>
 
 
   <stack_hexagons parent="base_link"/>
@@ -22,9 +23,6 @@
     <origin xyz="-0.1 0 0.420" rpy="3.1415 0 1.5707"/>
   </xacro:rplidar>
 
-  <xacro:generic_camera parent="base_link" name="camera">
-  		<origin xyz="0.1 0 0.420" rpy="3.1415 0 1.5707"/>
-  </xacro:generic_camera>
 
 
 </robot>

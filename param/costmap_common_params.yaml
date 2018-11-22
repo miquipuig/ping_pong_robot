@@ -26,10 +26,11 @@ obstacle_layer:
   scan:
     data_type: LaserScan
     topic: scan
+    #sensor_frame: rplidar_frame
     marking: true
     clearing: true
-    min_obstacle_height: -9999
-    max_obstacle_height: 999999999
+    min_obstacle_height: 0.25
+    max_obstacle_height: 0.35
 
   # for debugging only, let's you see the entire voxel grid
 
