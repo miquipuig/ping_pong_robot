@@ -24,10 +24,10 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0" />
         <geometry>
-          <box size="0.01 0.01 0.01" />
+          <box size="0.02 0.02 0.02" />
         </geometry>
-        <material name="grey">
-            <color rgba="0.2 0.2 0.2 1.0"/>
+        <material name="Cyan">
+          <color rgba="0 1.0 1.0 1.0"/>
         </material>
       </visual>
 
@@ -52,12 +52,12 @@
       <sensor type="camera" name="camera_camera_sensor">
         <update_rate>30.0</update_rate>
         <camera>
-          <pose>0.035 0 0.078 0 ${-M_PI/2} 0</pose>
+          <!--<pose>0.035 0 0.078 0 ${-M_PI/2} 0</pose>-->
           <horizontal_fov>${85 * M_PI/180.0}</horizontal_fov>
           <image>
             <format>R8G8B8</format>
-            <width>1020</width>
-            <height>1020</height>
+            <width>800</width>
+            <height>600</height>
           </image>
           <clip>
             <near>0.01</near>
