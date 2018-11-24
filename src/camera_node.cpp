@@ -45,9 +45,12 @@ void RosImgProcessorNode::process()
     cv::Mat K = matrixK_;
     cv::Mat u=(cv::Mat_<double>(3,1)<< 0,0,0);
 
-    double xcenter=640/2;
-    double ycenter=480/2;
+    double xcenter=800/2;
+    double ycenter=600/2;
+    int MAX_BALLS=3;
+    int balls_size=0;
     cv::Point centerp = cv::Point(xcenter, ycenter);
+    cv::Point newcenter = cv::Point(xcenter, ycenter+100);
     //check if new image is there
     if ( cv_img_ptr_in_ != nullptr )
     {
@@ -66,8 +69,17 @@ void RosImgProcessorNode::process()
      cv::Mat Kinv= K.inv();
      //std::cout << Kinv << std::endl;
      //exemple de u
+    if(circles.size()>MAX_BALLS){
+        balls_size=MAX_BALLS;
 
-    for(unsigned int ii = 0; ii < circles.size(); ii++ )
+     }
+     else{
+       balls_size=circles.size();
+     }
+    // ROS_INFO("1-balls_Size: %d",balls_size);
+    //balls_size=circles.size();
+    ROS_INFO("2-balls_Size: %d",balls_size);
+    for(unsigned int ii = 0; ii < balls_size; ii++ )
     {
 
         if ( circles[ii][0] != -1 )
@@ -76,16 +88,18 @@ void RosImgProcessorNode::process()
                 //u=(cv::Mat_<double>(3,1)<< circles[ii][0] -xcenter, circles[ii][1] - ycenter,1);
                 u=(cv::Mat_<double>(3,1)<< circles[ii][0] , circles[ii][1] ,1);
 
+
+
+
                 //imprimeix coordenades Ray director
-                ray_direction_= Kinv*u;
+                //ray_direction_= Kinv*u;
 
                 center = cv::Point(cvRound(circles[ii][0]), cvRound(circles[ii][1]));
                 radius = cvRound(circles[ii][2]);
                 cv::circle(cv_img_out_.image, center, 5, cv::Scalar(0,0,255), -1, 8, 0 );// circle center in green
                 cv::circle(cv_img_out_.image, center, radius, cv::Scalar(0,0,255), 3, 8, 0 );// circle perimeter in red
                 //vector Ray director
-                cv::line(cv_img_out_.image,centerp,center,cv::Scalar(0,0,255), 8); //linea
-
+                cv::line(cv_img_out_.image,newcenter,center,cv::Scalar(0,0,255), 8); //linea
 
                 geometry_msgs::Vector3 direction;
                 direction.x = ray_direction_.at<double>(0, 0);
