@@ -8,7 +8,13 @@ const double MIN_CIRCLE_DIST = 20;
 const double HOUGH_ACCUM_TH = 50;
 const int MIN_RADIUS = 4  ;
 const int MAX_RADIUS = 50;
-
+const double xcenter=800/2;
+const double ycenter=600/2;
+const double  newycenter=ycenter+200;
+const double cross= 15;
+const int MAX_BALLS=6;
+const int ZEROS_TIME=10;
+int zeroscount=0;
 
 RosImgProcessorNode::RosImgProcessorNode() :
     nh_(ros::this_node::getName()),
@@ -50,11 +56,8 @@ void RosImgProcessorNode::process()
     cv::Mat K = matrixK_;
     cv::Mat u=(cv::Mat_<double>(3,1)<< 0,0,0);
 
-    double xcenter=800/2;
-    double ycenter=600/2;
-    double  newycenter=ycenter+100;
-    double cross=15;
-    int MAX_BALLS=6;
+
+
     int balls_size=0;
     cv::Point centerp = cv::Point(xcenter, ycenter);
     cv::Point newcenter = cv::Point(xcenter, newycenter);
@@ -95,10 +98,6 @@ void RosImgProcessorNode::process()
 
     double miniumDistance=1000;
     int closeBall=0;
-
-    //Mirila central
-    cv::line(cv_img_out_.image,vx1,vx2,cv::Scalar(255,0,0), 8);
-    cv::line(cv_img_out_.image,vy1,vy2,cv::Scalar(255,0,0), 8);
 
 
     for(unsigned int ii = 0; ii < balls_size; ii++ )
@@ -146,14 +145,31 @@ void RosImgProcessorNode::process()
         cv::line(cv_img_out_.image,newcenter,center,cv::Scalar(255,0,0), 8); //linea
 
         geometry_msgs::Vector3 direction;
-        direction.x = selectionBalls[closeBall].x-newcenter.x;  
+        direction.x = selectionBalls[closeBall].x-newcenter.x;
         direction.y = newcenter.y-selectionBalls[closeBall].y;
         direction.z =balls_size;
         nextBall.publish(direction);
+        zeroscount=0;
+      }else{
+        //ROS_INFO("1 -  No hay volas - contador: %d",zeroscount);
+        zeroscount+=1;
+        //ROS_INFO("2 -  No hay volas - contador: %d",zeroscount);
 
+        if(zeroscount>=ZEROS_TIME){
+            //ROS_INFO("2 -  No hay volas - contador: %d - Imprimo topic",zeroscount);
+          zeroscount=0;
+
+          geometry_msgs::Vector3 direction;
+          direction.x = 0;
+          direction.y = 0;
+          direction.z =0 ;
+          nextBall.publish(direction);
+        }
 
       }
-
+      //Mirila central
+      cv::line(cv_img_out_.image,vx1,vx2,cv::Scalar(255,0,0), 8);
+      cv::line(cv_img_out_.image,vy1,vy2,cv::Scalar(255,0,0), 8);
     }
 
     //reset input image
@@ -202,5 +218,5 @@ void RosImgProcessorNode::cameraInfoCallback(const sensor_msgs::CameraInfo & _ms
   matrixK_ = (cv::Mat_<double>(3,3) << _msg.K[0],_msg.K[1],_msg.K[2],
                                       _msg.K[3],_msg.K[4],_msg.K[5],
                                       _msg.K[6],_msg.K[7],_msg.K[8]);
-  //std::cout << matrixP_ << std::endl;
+
 }
