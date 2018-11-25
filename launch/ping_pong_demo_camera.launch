@@ -38,7 +38,7 @@
 
 	<!-- display in/out image -->
 	<group if="$(arg show_image)">
-		<node
+<!--		<node
 			name="image_view_raw"
 			pkg="image_view"
 			type="image_view"
@@ -46,8 +46,8 @@
 			output="screen">
 			<remap from="image" to="/ping_pong_camera/image_raw"/>
 			<param name="autosize" value="false" />
-		</node>
-	<!--	<node
+		</node>-->
+		<node
 			name="image_view_out"
 			pkg="image_view"
 			type="image_view"
@@ -55,7 +55,7 @@
 			output="screen">
 			<remap from="image" to="/camera/image_out"/>
 			<param name="autosize" value="false" />
-		</node>-->
+		</node>
 	</group>
 
 </launch>
