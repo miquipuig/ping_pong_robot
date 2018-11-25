@@ -2,12 +2,12 @@
 
 const int GAUSSIAN_BLUR_SIZE = 7;
 const double GAUSSIAN_BLUR_SIGMA = 2;
-const double CANNY_EDGE_TH = 150;
+const double CANNY_EDGE_TH = 80;
 const double HOUGH_ACCUM_RESOLUTION = 2;
-const double MIN_CIRCLE_DIST = 40;
-const double HOUGH_ACCUM_TH = 70;
-const int MIN_RADIUS = 20;
-const int MAX_RADIUS = 100;
+const double MIN_CIRCLE_DIST = 20;
+const double HOUGH_ACCUM_TH = 50;
+const int MIN_RADIUS = 4  ;
+const int MAX_RADIUS = 50;
 
 
 RosImgProcessorNode::RosImgProcessorNode() :
@@ -19,10 +19,9 @@ RosImgProcessorNode::RosImgProcessorNode() :
 
 	//sets publishers
 	image_pub_ = img_tp_.advertise("image_out", 100);
-  ray_direction_circle_pub = nh_.advertise<geometry_msgs::Vector3>("direction", 1);
+  ray_direction_circle_pub = nh_.advertise<geometry_msgs::Vector3>("raydirector", 1);
+  nextBall = nh_.advertise<geometry_msgs::Vector3>("direction", 1);
   ray_direction_ = (cv::Mat_<double>(3,1) << 0, 0, 0) ;
-
-
 
 	//sets subscribers
 	image_subs_ = img_tp_.subscribe("image_in", 1, &RosImgProcessorNode::imageCallback, this);
@@ -33,6 +32,12 @@ RosImgProcessorNode::RosImgProcessorNode() :
 RosImgProcessorNode::~RosImgProcessorNode()
 {
 
+}
+
+double hypotenuse( double x, double y, double cx, double cy ){
+
+
+      return pow( cx-x, 2 ) + pow( cy-y, 2 );
 }
 
 void RosImgProcessorNode::process()
@@ -47,10 +52,16 @@ void RosImgProcessorNode::process()
 
     double xcenter=800/2;
     double ycenter=600/2;
-    int MAX_BALLS=3;
+    double  newycenter=ycenter+100;
+    double cross=15;
+    int MAX_BALLS=6;
     int balls_size=0;
     cv::Point centerp = cv::Point(xcenter, ycenter);
-    cv::Point newcenter = cv::Point(xcenter, ycenter+100);
+    cv::Point newcenter = cv::Point(xcenter, newycenter);
+    cv::Point vx1 = cv::Point(xcenter-cross, newycenter);
+    cv::Point vx2 = cv::Point(xcenter+cross, newycenter);
+    cv::Point vy1 = cv::Point(xcenter, newycenter-cross);
+    cv::Point vy2 = cv::Point(xcenter, newycenter+cross);
     //check if new image is there
     if ( cv_img_ptr_in_ != nullptr )
     {
@@ -76,9 +87,20 @@ void RosImgProcessorNode::process()
      else{
        balls_size=circles.size();
      }
-    // ROS_INFO("1-balls_Size: %d",balls_size);
+     //ROS_INFO("1-balls_Size: %d",balls_size);
     //balls_size=circles.size();
-    ROS_INFO("2-balls_Size: %d",balls_size);
+
+
+    geometry_msgs::Vector3 selectionBalls[balls_size];
+
+    double miniumDistance=1000;
+    int closeBall=0;
+
+    //Mirila central
+    cv::line(cv_img_out_.image,vx1,vx2,cv::Scalar(255,0,0), 8);
+    cv::line(cv_img_out_.image,vy1,vy2,cv::Scalar(255,0,0), 8);
+
+
     for(unsigned int ii = 0; ii < balls_size; ii++ )
     {
 
@@ -88,11 +110,14 @@ void RosImgProcessorNode::process()
                 //u=(cv::Mat_<double>(3,1)<< circles[ii][0] -xcenter, circles[ii][1] - ycenter,1);
                 u=(cv::Mat_<double>(3,1)<< circles[ii][0] , circles[ii][1] ,1);
 
-
-
-
-                //imprimeix coordenades Ray director
-                //ray_direction_= Kinv*u;
+                selectionBalls[ii].x=circles[ii][0];
+                selectionBalls[ii].y=circles[ii][1];
+                selectionBalls[ii].z=circles[ii][2];
+                double hip=hypotenuse(circles[ii][0],circles[ii][1],newcenter.x, newcenter.y);
+                if(hip<miniumDistance){
+                  miniumDistance=hip;
+                  closeBall=ii;
+                }
 
                 center = cv::Point(cvRound(circles[ii][0]), cvRound(circles[ii][1]));
                 radius = cvRound(circles[ii][2]);
@@ -101,14 +126,33 @@ void RosImgProcessorNode::process()
                 //vector Ray director
                 cv::line(cv_img_out_.image,newcenter,center,cv::Scalar(0,0,255), 8); //linea
 
-                geometry_msgs::Vector3 direction;
+                /*geometry_msgs::Vector3 direction;
                 direction.x = ray_direction_.at<double>(0, 0);
                 direction.y = ray_direction_.at<double>(1, 0);
                 direction.z = ray_direction_.at<double>(2, 0);
-                ray_direction_circle_pub.publish(direction);
+                ray_direction_circle_pub.publish(direction);*/
 
         }
     }
+
+      if (balls_size>0){
+      //ROS_INFO("Imprimir ball");
+
+        center = cv::Point(cvRound(selectionBalls[closeBall].x), cvRound(selectionBalls[closeBall].y));
+        radius = cvRound(selectionBalls[closeBall].z);
+        cv::circle(cv_img_out_.image, center, 5, cv::Scalar(255,0,0), -1, 8, 0 );// circle center in green
+        cv::circle(cv_img_out_.image, center, radius, cv::Scalar(255,0,0), 3, 8, 0 );// circle perimeter in red
+        //vector Ray director
+        cv::line(cv_img_out_.image,newcenter,center,cv::Scalar(255,0,0), 8); //linea
+
+        geometry_msgs::Vector3 direction;
+        direction.x = selectionBalls[closeBall].x-newcenter.x;  
+        direction.y = newcenter.y-selectionBalls[closeBall].y;
+        direction.z =balls_size;
+        nextBall.publish(direction);
+
+
+      }
 
     }
 

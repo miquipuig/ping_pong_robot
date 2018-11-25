@@ -33,6 +33,7 @@ class RosImgProcessorNode
         //publishers
         image_transport::Publisher image_pub_;
         ros::Publisher ray_direction_circle_pub;
+        ros::Publisher nextBall;
         //pointer to received (in) and published (out) images
         cv_bridge::CvImagePtr cv_img_ptr_in_;
         cv_bridge::CvImage cv_img_out_;
