@@ -6,14 +6,17 @@ const double CANNY_EDGE_TH = 80;
 const double HOUGH_ACCUM_RESOLUTION = 2;
 const double MIN_CIRCLE_DIST = 20;
 const double HOUGH_ACCUM_TH = 50;
-const int MIN_RADIUS = 4  ;
-const int MAX_RADIUS = 50;
-const double xcenter=800/2;
-const double ycenter=600/2;
-const double  newycenter=ycenter+200;
-const double cross= 15;
-const int MAX_BALLS=6;
-const int ZEROS_TIME=10;
+const int MIN_RADIUS = 7; //minimo radio de pelota.
+const int MAX_RADIUS = 50; //maximo radio de las pelotas.
+const double xcenter=800/2; //resolución camera en x
+const double ycenter=600/2; //resolución camera en y
+const double  newycenter=ycenter+200; //punto en y donde se encuentra la X
+const double cross= 15; //anchura de cruz central
+const int MAX_BALLS=6; //Numero de pelotas que se analiza por cercania. Como mas grande mas posibles candidatas falsas.
+const int ZEROS_TIME=10; //Minimo de zeros seguidos para enviar dirección nula.
+const int BALLS_TIME=5; //Minimo de veces que se he de ver pelota para enviar dirección
+const int ZEROS_RESET_TIME=2; //Zeros seguidos para los cuales se resetea BALLS_TIME.
+int ballscount=0;
 int zeroscount=0;
 
 RosImgProcessorNode::RosImgProcessorNode() :
@@ -135,24 +138,30 @@ void RosImgProcessorNode::process()
     }
 
       if (balls_size>0){
+        ballscount+=1;
       //ROS_INFO("Imprimir ball");
+          if(ballscount>=BALLS_TIME){
 
-        center = cv::Point(cvRound(selectionBalls[closeBall].x), cvRound(selectionBalls[closeBall].y));
-        radius = cvRound(selectionBalls[closeBall].z);
-        cv::circle(cv_img_out_.image, center, 5, cv::Scalar(255,0,0), -1, 8, 0 );// circle center in green
-        cv::circle(cv_img_out_.image, center, radius, cv::Scalar(255,0,0), 3, 8, 0 );// circle perimeter in red
-        //vector Ray director
-        cv::line(cv_img_out_.image,newcenter,center,cv::Scalar(255,0,0), 8); //linea
+              center = cv::Point(cvRound(selectionBalls[closeBall].x), cvRound(selectionBalls[closeBall].y));
+              radius = cvRound(selectionBalls[closeBall].z);
+              cv::circle(cv_img_out_.image, center, 5, cv::Scalar(255,0,0), -1, 8, 0 );// circle center in green
+              cv::circle(cv_img_out_.image, center, radius, cv::Scalar(255,0,0), 3, 8, 0 );// circle perimeter in red
+              //vector Ray director
+              cv::line(cv_img_out_.image,newcenter,center,cv::Scalar(255,0,0), 8); //linea
 
-        geometry_msgs::Vector3 direction;
-        direction.x = selectionBalls[closeBall].x-newcenter.x;
-        direction.y = newcenter.y-selectionBalls[closeBall].y;
-        direction.z =balls_size;
-        nextBall.publish(direction);
-        zeroscount=0;
+              geometry_msgs::Vector3 direction;
+              direction.x = selectionBalls[closeBall].x-newcenter.x;
+              direction.y = newcenter.y-selectionBalls[closeBall].y;
+              direction.z =balls_size;
+              nextBall.publish(direction);
+              zeroscount=0;
+          }
       }else{
         //ROS_INFO("1 -  No hay volas - contador: %d",zeroscount);
         zeroscount+=1;
+        if(zeroscount>=ZEROS_RESET_TIME){
+          ballscount=0;
+        }
         //ROS_INFO("2 -  No hay volas - contador: %d",zeroscount);
 
         if(zeroscount>=ZEROS_TIME){

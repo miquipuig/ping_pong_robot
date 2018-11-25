@@ -157,26 +157,26 @@ if(STATE==BALL_APROX){
   //ROS_INFO("1 - Canvi estat a BALL_RECOLECT? %d",STATE );
   double xb = aprox_vector.y*factorX;
   double zb = -aprox_vector.x*factorA;
-  ROS_INFO ("INI xb: %lf  zb: %lf", xb,zb);
+  //ROS_INFO ("INI xb: %lf  zb: %lf", xb,zb);
   if(fabs(xb)<MINIUM_X){
     //ROS_INFO ("MID abs(xb): %lf  MINIUM_X: %lf", abs(xb),MINIUM_X);
-    ROS_INFO("Minimo X");
+    //ROS_INFO("Minimo X");
     if(xb>0){
-        ROS_INFO("Minimo X +");
+        //ROS_INFO("Minimo X +");
         xb=MINIUM_X;
     }else if(xb<0){
-      ROS_INFO("Minimo X -");
+      //ROS_INFO("Minimo X -");
       xb=-MINIUM_X;
     }
   }
 
   if(fabs(zb)<MINIUM_Z){
-      ROS_INFO("Minimo Z");
+      //ROS_INFO("Minimo Z");
     if(zb>0){
-        ROS_INFO("Minimo Z +");
+        //ROS_INFO("Minimo Z +");
       zb=MINIUM_Z;
     }else if(zb<0){
-      ROS_INFO("Minimo Z -");
+      //ROS_INFO("Minimo Z -");
       zb=-MINIUM_Z;
     }
   }
@@ -202,7 +202,7 @@ ROS_INFO("Simulación de Recolectar pelota: 5 segundos");
 usleep(3000000);
 STATE=LAST_STATE;
 CHANGE_STATE=TRUE;
-ROS_INFO("Volviendo al estado anterior %d", STATE);
+ROS_INFO("Volviendo al estado anterior: %d", STATE);
 }
 //------------------------------
 //Enviar el último estado
