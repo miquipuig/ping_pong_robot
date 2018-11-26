@@ -12,6 +12,11 @@
 #include "geometry_msgs/Vector3.h"
 #include "geometry_msgs/Twist.h"
 #include <unistd.h>
+#include "geometry_msgs/Pose.h"
+#include "geometry_msgs/Point.h"
+#include <nav_msgs/MapMetaData.h>
+#include <stdint.h>
+#include <cstdint>
 
 //Estados
 const int TRUE = 1;
@@ -180,7 +185,7 @@ if(STATE==BALL_APROX){
       zb=-MINIUM_Z;
     }
   }
-  ROS_INFO ("FIN xb: %lf  zb: %lf", xb,zb);
+  ROS_INFO ("Movimiento en x: %lf  Angular: %lf", xb,zb);
 
   movetoball.linear.x =xb;
   movetoball.angular.z=zb;
@@ -198,7 +203,7 @@ if(STATE==BALL_APROX){
 //BALL_RECOLECT
 //------------------------------
 else if(STATE==BALL_RECOLECT){
-ROS_INFO("Simulación de Recolectar pelota: 5 segundos");
+ROS_INFO("Simulacion de Recolectar pelota: 5 segundos");
 usleep(3000000);
 STATE=LAST_STATE;
 CHANGE_STATE=TRUE;

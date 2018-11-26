@@ -14,8 +14,8 @@ const double  newycenter=ycenter+200; //punto en y donde se encuentra la X
 const double cross= 15; //anchura de cruz central
 const int MAX_BALLS=6; //Numero de pelotas que se analiza por cercania. Como mas grande mas posibles candidatas falsas.
 const int ZEROS_TIME=10; //Minimo de zeros seguidos para enviar dirección nula.
-const int BALLS_TIME=5; //Minimo de veces que se he de ver pelota para enviar dirección
-const int ZEROS_RESET_TIME=2; //Zeros seguidos para los cuales se resetea BALLS_TIME.
+const int BALLS_TIME=3; //Minimo de veces que se he de ver pelota para enviar dirección
+const int ZEROS_RESET_TIME=2; //Zeros seguidos para los cuales se resetea BALLS_TIME. Como mas grande mas cuesta encontrar candidato
 int ballscount=0;
 int zeroscount=0;
 
