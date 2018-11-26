@@ -10,12 +10,14 @@
 #include "geometry_msgs/Point.h"
 #include "nav_msgs/OccupancyGrid.h"
 
-float map_resolution = 0.05;
+
+const double GOAL4METER=0.5; //Goals por cada metro real de distancia.
+float map_resolution = 0;
 int pixel_x = 0; //[pixeles de ancgura]
 int pixel_y = 0; //[pixeles de altura]
 double resolution =0; //Resolución del mapa [m/cell]
 geometry_msgs::Point origin;
-
+int PIXEL4GOAL=10;
 int nrows = 50;
 int ncols =4;
 
@@ -77,6 +79,7 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 					 pixel_x=edge.width;
 					 pixel_y=edge.height;
 					 origin=edge.origin.position;
+					 resolution=edge.resolution;
 				 }
 
 				boost::shared_ptr<nav_msgs::OccupancyGrid const> grid;
@@ -94,10 +97,14 @@ typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseCl
 				 for(int i; i<pixel_x;i++){
  					mapa[i] = new int[pixel_y];
 							for(int j;j<pixel_y;j++){
-									mapa[i][j]=0;
-
+									mapa[i][j]=(int)mapaM.data[i+j*pixel_x];
 							}
  				  }
+					//definimos PIXEL4GOAL
+					PIXEL4GOAL= (int)(GOAL4METER/resolution);
+					ROS_INFO("Pixels/GOAL: %d",PIXEL4GOAL);
+					//definimos una matriz con los Goals
+
 
 				 /*for(int i; i<pixel_x*pixel_y; i++){
 					 	mapa[i]=(int)mapaM.data[i];
