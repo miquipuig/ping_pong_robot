@@ -9,6 +9,7 @@
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/Point.h"
 #include "nav_msgs/OccupancyGrid.h"
+#include "std_msgs/String.h"
 //#include <Eigen/Eigen>
 const double PI=3.14159265359;
 //Eigen::MatrixXd eMap;
@@ -21,13 +22,31 @@ int pixel_y = 0; //[pixeles de altura]
 double resolution =0; //Resolución del mapa [m/cell]
 geometry_msgs::Point origin;
 int PIXEL4GOAL=0;
-
+int control=0;
+int ind=0;
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
-int main(int argc, char** argv){
-      ros::init(argc, argv, "simple_navigation_goals");
-      ros::NodeHandle n;
+void chatterCallback(const std_msgs::String st)
+{
+    if(st.data =="EXPLORING"){
+        control=4;
+        //Le resto un goal pues suponemps que el anterior se ha cancelado
+        if(ind>0){
+        ind--;}
+    }else
+        control=0;
 
+}
+
+
+
+
+int main(int argc, char** argv){
+      ros::init(argc, argv, "exploration");
+      ros::NodeHandle n;
+      ros::Subscriber sub = n.subscribe("state", 10,chatterCallback);
+      ros::Publisher chatter_pub = n.advertise<std_msgs::String>("state", 1000);
+      std_msgs::String msg;
       //cargamos los valores del mapa
       boost::shared_ptr<nav_msgs::MapMetaData const> sharedEdge;
       nav_msgs::MapMetaData edge;
@@ -193,30 +212,45 @@ int main(int argc, char** argv){
          ROS_INFO("Waiting for the move_base action server to come up");
       }
 
-      ros::Rate loopRate(0.1);
-
       move_base_msgs::MoveBaseGoal goal;
 
       goal.target_pose.header.frame_id = "/map";
       goal.target_pose.header.stamp = ros::Time::now();
-      for( int i = 0; i < numGoals; i = i + 1 ) {
 
-      goal.target_pose.pose.position.x =goals[i*4]; //(double)origin.x
-      goal.target_pose.pose.position.y =goals[i*4+1];//(double)origin.y
-      goal.target_pose.pose.orientation.w =goals[i*4+2];
-      goal.target_pose.pose.orientation.z =goals[i*4+3];
-        ROS_INFO("Sending goal");
-         ROS_INFO("Posicion %lf %lf %lf %lf", goals[i*4],goals[i*4+1], goals[i*4+2], goals[i*4+3]);
-        ac.sendGoal(goal);
-
-        ac.waitForResult();
-
-       if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-          ROS_INFO("Goal aceptado, moviendose" );
-           else
-          ROS_INFO("Error, goal inaceptable");
-       }
+      ros::Rate loopRate(5);
+      ind=0;
+      while ( ros::ok() )
+      {
 
 
-      return 0;
+
+        while (ind<numGoals && control==4){
+        //for( int i = 0; i < numGoals; i++ ) {
+
+            goal.target_pose.pose.position.x =goals[ind*4]; //(double)origin.x
+            goal.target_pose.pose.position.y =goals[ind*4+1];//(double)origin.y
+            goal.target_pose.pose.orientation.w =goals[ind*4+2];
+            goal.target_pose.pose.orientation.z =goals[ind*4+3];
+            ROS_INFO("Moviendose a GOAL %d de %d",ind+1, numGoals);
+            ac.sendGoal(goal);
+
+            ac.waitForResult();
+
+            if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
+                ROS_INFO("Goal alcanzado");
+            else
+                ROS_INFO("Goal cancelado");
+            ind++;
+            if(ind==numGoals){
+              ind==0;
+              control=0;
+              msg.data = "TRANSITION";
+              chatter_pub.publish(msg);
+            }
+            ros::spinOnce();
+         }
+         ros::spinOnce();
+         loopRate.sleep();
+     }
+     return 0;
 }

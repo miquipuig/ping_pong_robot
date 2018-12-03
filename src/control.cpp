@@ -28,6 +28,7 @@ const int BALL_RECOLECT= 3;
 const int EXPLORING= 4;
 const int LOST =5;
 const int HOME_RETURN =6;
+const int TRANSITION =7;
 int STATE=0;
 int LAST_STATE=0;
 int CHANGE_STATE=0;
@@ -56,7 +57,8 @@ bool perdido =false;
 move_base_msgs::MoveBaseGoal goal;
 
 bool moves(move_base_msgs::MoveBaseGoal goals){
-MoveBaseClient ac("move_base", true);
+  MoveBaseClient ac("move_base", true);
+
   goals.target_pose.header.stamp = ros::Time::now();
       //ROS_INFO("Enviar goal");
 
@@ -64,6 +66,25 @@ MoveBaseClient ac("move_base", true);
         ROS_INFO("Waiting for the move_base action server to come up");
       }
       ac.sendGoal(goals);
+
+      return true;
+}
+
+bool stop(){
+  ROS_INFO("PARADA EMERGENCIA");
+  MoveBaseClient ac("move_base", true);
+  move_base_msgs::MoveBaseGoal goal;
+  goal.target_pose.header.stamp = ros::Time::now();
+  goal.target_pose.header.frame_id = "base_link";
+  goal.target_pose.pose.position.x = 0.0;
+  goal.target_pose.pose.position.y = 0.0;
+  goal.target_pose.pose.orientation.w = 1.0;
+      //ROS_INFO("Enviar goal");
+
+      while(!ac.waitForServer(ros::Duration(5.0))){
+        ROS_INFO("Waiting for the move_base action server to come up");
+      }
+      ac.sendGoal(goal);
 
       return true;
 }
@@ -94,14 +115,9 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
         //ROS_INFO("Limite no superado %lf", Cx);
       if(fabs(Cx)>C_LIMIT_D || fabs(Cy)>C_LIMIT_D || fabs(Cyx)>C_LIMIT_D ||fabs(Cxy)>C_LIMIT_D ){
         if(perdido==true){
-          ROS_INFO("Ya se donde estoy");
-          //parar
-          goal.target_pose.header.frame_id = "base_link";
-          goal.target_pose.pose.position.x = 0.0;
-          goal.target_pose.pose.position.y = 0.0;
-          goal.target_pose.pose.orientation.w = 1.0;
-            ROS_INFO("Me paro");
-          moves(goal);
+          ROS_INFO("Ya se donde estoy,me paro.");
+
+          stop();
           //ac.sendGoal(goal);
         }
         perdido=false;
@@ -130,6 +146,21 @@ aprox_vector=vector;
   }
 }
 
+void stateCallback(const std_msgs::String state)
+{
+    if(state.data =="EXPLORING"){
+          LAST_STATE=STATE;
+          STATE=EXPLORING;
+    }else if(state.data =="TRANSITION"){
+          STATE=LAST_STATE;
+          CHANGE_STATE==TRUE;
+          stop();
+    }else if(state.data =="STOPPED"){
+            STATE=STOPPED;
+            stop();
+      }
+}
+
 int main(int argc, char **argv)
 {
 
@@ -137,11 +168,13 @@ int main(int argc, char **argv)
 
   //declaración Subscriber
   ros::NodeHandle n;
+
   ros::Subscriber sub = n.subscribe("amcl_pose", 10,chatterCallback);
   ros::Subscriber dir = n.subscribe("/camera/direction", 10,ballCallback);
+  ros::Subscriber sta = n.subscribe("state", 10, stateCallback);
   //declaración Publisher STATE
   std_msgs::String msg;
-  std::stringstream ss;
+  //std::stringstream ss;
   ros::Publisher chatter_pub = n.advertise<std_msgs::String>("state", 1000);
   //declaración Publisher TELEOP
   ros::Publisher ball_aprox = n.advertise<geometry_msgs::Twist>("/cmd_vel_mux/input/teleop", 1000);
@@ -151,8 +184,12 @@ int main(int argc, char **argv)
 
   while (ros::ok())
   {
-//ROS_INFO("looop");
 
+  //CANCELAR ACCIONES DE move_base
+  /*if(CANCEL_GOAL==TRUE){
+    stop();
+    CANCEL_GOAL==FALSE;
+  }*/
 
 //------------------------------
 //BALL_APROX
@@ -185,7 +222,7 @@ if(STATE==BALL_APROX){
       zb=-MINIUM_Z;
     }
   }
-  ROS_INFO ("Movimiento en x: %lf  Angular: %lf", xb,zb);
+  //ROS_INFO ("Movimiento en x: %lf  Angular: %lf", xb,zb);
 
   movetoball.linear.x =xb;
   movetoball.angular.z=zb;
@@ -209,6 +246,12 @@ STATE=LAST_STATE;
 CHANGE_STATE=TRUE;
 ROS_INFO("Volviendo al estado anterior: %d", STATE);
 }
+
+
+
+
+
+
 //------------------------------
 //Enviar el último estado
 //------------------------------
