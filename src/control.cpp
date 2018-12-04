@@ -77,14 +77,16 @@ bool stop(){
   goal.target_pose.header.stamp = ros::Time::now();
   goal.target_pose.header.frame_id = "base_link";
   goal.target_pose.pose.position.x = 0.0;
-  goal.target_pose.pose.position.y = 0.0;
+  goal.target_pose.pose.position.y = 1.0;
   goal.target_pose.pose.orientation.w = 1.0;
+
       //ROS_INFO("Enviar goal");
 
       while(!ac.waitForServer(ros::Duration(5.0))){
         ROS_INFO("Waiting for the move_base action server to come up");
       }
-      ac.sendGoal(goal);
+      // ac.sendGoal(goal);
+      ac.cancelAllGoals();
 
       return true;
 }

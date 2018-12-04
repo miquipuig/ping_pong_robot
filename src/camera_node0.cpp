@@ -1,23 +1,22 @@
 #include "camera_node.h"
 
-const int GAUSSIAN_BLUR_SIZE = 9 ;
+const int GAUSSIAN_BLUR_SIZE = 9;
 const double GAUSSIAN_BLUR_SIGMA = 2;
-const double CANNY_EDGE_TH = 75; //subir menos bolas #Para1
+const double CANNY_EDGE_TH = 100;
 const double HOUGH_ACCUM_RESOLUTION = 2;
-const double MIN_CIRCLE_DIST = 40;
-const double HOUGH_ACCUM_TH = 40; //subir para menos bolas #Para2
+const double MIN_CIRCLE_DIST = 20;
+const double HOUGH_ACCUM_TH = 50;
 const int MIN_RADIUS = 10; //minimo radio de pelota.
-const int MAX_RADIUS = 45; //maximo radio de las pelotas.
+const int MAX_RADIUS = 50; //maximo radio de las pelotas.
 const double xcenter=640/2; //resolución camera en x
 const double ycenter=480/2; //resolución camera en y
 const double  newycenter=ycenter+160; //punto en y donde se encuentra la X
 const double cross= 15; //anchura de cruz central
 const double linewide= 4;
 const int MAX_BALLS=6; //Numero de pelotas que se analiza por cercania. Como mas grande mas posibles candidatas falsas.
-const int ZEROS_TIME=7; //Minimo de zeros seguidos para enviar dirección nula.
-const int BALLS_TIME=4; //Minimo de veces que se he de ver pelota para enviar dirección
+const int ZEROS_TIME=10; //Minimo de zeros seguidos para enviar dirección nula.
+const int BALLS_TIME=3; //Minimo de veces que se he de ver pelota para enviar dirección
 const int ZEROS_RESET_TIME=2; //Zeros seguidos para los cuales se resetea BALLS_TIME. Como mas grande mas cuesta encontrar candidato
-const int MAX_DECTIONS_TO_AVOID=6; //Número de detecciones máximo de bolas para suponer sensor saturado.
 int ballscount=0;
 int zeroscount=0;
 
@@ -79,7 +78,7 @@ void RosImgProcessorNode::process()
 		//find the ball
 		//TODO
     circles.clear();
-    cv::cvtColor(cv_img_ptr_in_->image, gray_image, CV_RGB2GRAY);
+    cv::cvtColor(cv_img_ptr_in_->image, gray_image, CV_BGR2GRAY);
     cv::GaussianBlur( gray_image, gray_image, cv::Size(GAUSSIAN_BLUR_SIZE, GAUSSIAN_BLUR_SIZE), GAUSSIAN_BLUR_SIGMA );
     cv::HoughCircles( gray_image, circles, CV_HOUGH_GRADIENT, HOUGH_ACCUM_RESOLUTION, MIN_CIRCLE_DIST, CANNY_EDGE_TH, HOUGH_ACCUM_TH, MIN_RADIUS, MAX_RADIUS );
 
@@ -139,9 +138,8 @@ void RosImgProcessorNode::process()
         }
     }
 
-      if (balls_size>0&&balls_size<MAX_DECTIONS_TO_AVOID){
+      if (balls_size>0){
         ballscount+=1;
-
       //ROS_INFO("Imprimir ball");
           if(ballscount>=BALLS_TIME){
 
