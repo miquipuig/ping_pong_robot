@@ -133,6 +133,7 @@ void ballCallback(const geometry_msgs::Vector3& vector){
 aprox_vector=vector;
   if (vector.z>0){
 
+
     aprox_vector=vector;
       //ROS_INFO("estado: %d",STATE);
       if(STATE==EXPLORING||STATE==STARTED){
@@ -140,6 +141,7 @@ aprox_vector=vector;
         LAST_STATE=STATE;
         STATE=BALL_APROX;
         CHANGE_STATE=TRUE;
+        stop();
       }
   }else if(STATE==BALL_APROX){
 
