@@ -157,10 +157,8 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
         perdido=true;
         //ac.sendGoal(goal);
 
-    }else{
-        ROS_INFO("No estoy muy perdido");
-        if((perdido==true)&&(fabs(Cx)<C_LIMIT_D || fabs(Cy)<C_LIMIT_D || fabs(Cyx)<C_LIMIT_D ||fabs(Cxy)<C_LIMIT_D )){
-            ROS_INFO("Estoy menos perdido");
+    }else if((perdido==true)&&(fabs(Cx)<C_LIMIT_D || fabs(Cy)<C_LIMIT_D || fabs(Cyx)<C_LIMIT_D ||fabs(Cxy)<C_LIMIT_D )){
+
 
             ROS_INFO("Ya se donde estoy. Continuo.");
           STATE=LAST_STATE;
@@ -171,7 +169,7 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
           //ac.sendGoal(goal);
 
 
-      }
+      
     }
   }
 }
@@ -265,7 +263,7 @@ void batteryCallback(const kobuki_msgs::SensorState state)
             BATTERY_LOW=TRUE;
 
       }
-      else if(BATTERY_LOW=TRUE&&battery>140){
+      else if(BATTERY_LOW==TRUE&&battery>140){
         ROS_INFO("Bateria cargada");
         BATTERY_LOW=FALSE;
         STATE=LAST_STATE;

@@ -11,8 +11,5 @@
   <node name="control"		pkg="ping_pong_robot"		type="control" 	output="screen"> </node>
 
   <!-- APP MOBIL -->
-  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" >
-    <arg name="port" value="8080"/>
-  </include>
-  <include file="$(find roswww)/launch/roswww.launch" />
+
 </launch>
