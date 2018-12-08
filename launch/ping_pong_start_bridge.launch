@@ -7,7 +7,9 @@
   rostopic echo /control
   -->
 
-  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" >
+    <arg name="port" value="8080"/>
+  </include>
   <include file="$(find roswww)/launch/roswww.launch" />
 
 </launch>

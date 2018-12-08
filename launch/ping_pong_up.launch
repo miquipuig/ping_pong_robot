@@ -1,0 +1,16 @@
+<launch>
+
+    <!-- MOVE_BASE y AMCL -->
+  <include file="$(find ping_pong_robot)/launch/ping_pong_amcl.launch"/>
+    <!-- USB_CAM + Análisi de imágen -->
+  <include file="$(find ping_pong_robot)/launch/ping_pong_camera.launch"/>
+    <!-- Exploration -->
+  <node name="exploration"		pkg="ping_pong_robot"		type="exploration" 	output="screen"> </node>
+
+    <!-- Control y acercamiento a pelotas -->
+  <node name="control"		pkg="ping_pong_robot"		type="control" 	output="screen"> </node>
+
+  <!-- APP MOBIL -->
+  <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" />
+  <include file="$(find roswww)/launch/roswww.launch" />
+</launch>

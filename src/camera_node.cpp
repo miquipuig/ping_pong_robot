@@ -2,10 +2,10 @@
 
 const int GAUSSIAN_BLUR_SIZE = 9 ;
 const double GAUSSIAN_BLUR_SIGMA = 2;
-const double CANNY_EDGE_TH = 75; //subir menos bolas #Para1
+const double CANNY_EDGE_TH = 110; //subir menos bolas #Para1
 const double HOUGH_ACCUM_RESOLUTION = 2;
 const double MIN_CIRCLE_DIST = 40;
-const double HOUGH_ACCUM_TH = 40; //subir para menos bolas #Para2
+const double HOUGH_ACCUM_TH = 50; //subir para menos bolas #Para2
 const int MIN_RADIUS = 10; //minimo radio de pelota.
 const int MAX_RADIUS = 45; //maximo radio de las pelotas.
 const double xcenter=640/2; //resolución camera en x

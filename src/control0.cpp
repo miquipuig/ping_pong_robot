@@ -33,7 +33,6 @@ const int TRANSITION =7;
 int STATE=1;
 int LAST_STATE=0;
 int CHANGE_STATE=0;
-int BATTERY_LOW=FALSE;
 
 //variables de aproximación a pelota
 const double factorX=0.0004; //Factor de escalado direccional.
@@ -51,10 +50,9 @@ geometry_msgs::PoseWithCovariance pose;
 
 
 const double C_LIMIT = 0.09;
-const double C_LIMIT_D = 0.08;
+const double C_LIMIT_D = 0.05;
 
 bool perdido =false;
-
 
 
 void publishState(){
@@ -91,8 +89,6 @@ void publishState(){
 }
 
 
-
-
 move_base_msgs::MoveBaseGoal goal;
 
 bool moves(move_base_msgs::MoveBaseGoal goals){
@@ -110,7 +106,7 @@ bool moves(move_base_msgs::MoveBaseGoal goals){
 }
 
 bool stop(){
-  ROS_INFO("Me paro");
+  ROS_INFO("Stop");
   MoveBaseClient ac("move_base", true);
   move_base_msgs::MoveBaseGoal goal;
   goal.target_pose.header.stamp = ros::Time::now();
@@ -129,7 +125,29 @@ bool stop(){
 
       return true;
 }
-//Kidnapping
+
+bool return_home(){
+  ROS_INFO("Volviendo a casa");
+  MoveBaseClient ac("map", true);
+  move_base_msgs::MoveBaseGoal goal;
+  goal.target_pose.header.stamp = ros::Time::now();
+  goal.target_pose.header.frame_id = "base_link";
+  goal.target_pose.pose.position.x = 0.0;
+  goal.target_pose.pose.position.y = 0.0;
+  goal.target_pose.pose.orientation.w = 1.0;
+  goal.target_pose.pose.orientation.z = 1.0;
+
+      //ROS_INFO("Enviar goal");
+
+      while(!ac.waitForServer(ros::Duration(5.0))){
+        ROS_INFO("Waiting for the move_base action server to come up");
+      }
+      ac.sendGoal(goal);
+
+      return true;
+}
+
+//kidnappingG
 void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
 {
     double Cx = vector.pose.covariance[0];
@@ -137,50 +155,45 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
     double Cy= vector.pose.covariance[6];
     double Cyx= vector.pose.covariance[7];
     //double Cy1= ¡
- if(STATE==EXPLORING||STATE==STARTED||STATE==LOST){
-    if ((fabs(Cx)>C_LIMIT || fabs(Cy)>C_LIMIT || fabs(Cyx)>C_LIMIT ||fabs(Cxy)>C_LIMIT)&&perdido==false){
+ if(STATE==EXPLORING||STATE==STARTED){
+    if (fabs(Cx)>C_LIMIT || fabs(Cy)>C_LIMIT || fabs(Cyx)>C_LIMIT ||fabs(Cxy)>C_LIMIT){
       //ROS_INFO("Limite superado %lf", Cx );
-        LAST_STATE=STATE;
-        STATE=LOST;
-        CHANGE_STATE=TRUE;
-        publishState();
-        stop();
-        ROS_INFO("Me estoy perdiendo, vuelvo a casa");
-
+      if(perdido==false){
+        ROS_INFO("Me estoy perdiendo");
         goal.target_pose.header.frame_id = "map";
         goal.target_pose.pose.position.x = -0.4;
         goal.target_pose.pose.position.y = -0.4;
-        goal.target_pose.pose.orientation.w = 1.0;
+        goal.target_pose.pose.orientation.w = 1.5;
 
-
+        ROS_INFO("Volviendo a casa");
         moves(goal);
-        perdido=true;
         //ac.sendGoal(goal);
+      }
+       perdido=true;
 
     }else{
-        ROS_INFO("No estoy muy perdido");
-        if((perdido==true)&&(fabs(Cx)<C_LIMIT_D || fabs(Cy)<C_LIMIT_D || fabs(Cyx)<C_LIMIT_D ||fabs(Cxy)<C_LIMIT_D )){
-            ROS_INFO("Estoy menos perdido");
+        //ROS_INFO("Limite no superado %lf", Cx);
+      if(fabs(Cx)>C_LIMIT_D || fabs(Cy)>C_LIMIT_D || fabs(Cyx)>C_LIMIT_D ||fabs(Cxy)>C_LIMIT_D ){
+        if(perdido==true){
+          ROS_INFO("Ya se donde estoy,me paro.");
 
-            ROS_INFO("Ya se donde estoy. Continuo.");
-          STATE=LAST_STATE;
-          CHANGE_STATE=TRUE;
-
-          publishState();
-          perdido=false;
+          stop();
           //ac.sendGoal(goal);
-
-
+        }
+        perdido=false;
       }
     }
   }
 }
 
-//Ball Recolection detects
 void ballCallback(const geometry_msgs::Vector3& vector){
-  aprox_vector=vector;
+
+
+aprox_vector=vector;
   if (vector.z>0){
-  aprox_vector=vector;
+
+
+    aprox_vector=vector;
       //ROS_INFO("estado: %d",STATE);
       if(STATE==EXPLORING||STATE==STARTED){
         //ROS_INFO("dentro: %d",STATE);
@@ -195,30 +208,8 @@ void ballCallback(const geometry_msgs::Vector3& vector){
       STATE=LAST_STATE;
       CHANGE_STATE=TRUE;
       publishState();
-
-      //ACCIONES DE BRAZO MECÁNICO AQUÍ
   }
 }
-
-bool return_home(){
-  ROS_INFO("Volviendo a casa");
-  MoveBaseClient ac("move_base", true);
-  move_base_msgs::MoveBaseGoal goal;
-  goal.target_pose.header.stamp = ros::Time::now();
-  goal.target_pose.header.frame_id = "/map";
-  goal.target_pose.pose.position.x = 0.0;
-  goal.target_pose.pose.position.y = 0.0;
-  goal.target_pose.pose.orientation.w = 1.0;
-  goal.target_pose.pose.orientation.z = 0.0;
-
-     while(!ac.waitForServer(ros::Duration(5.0))){
-        ROS_INFO("cacacacac");
-      }
-      ac.sendGoal(goal);
-
-      return true;
-}
-
 void stateCallback(const std_msgs::String state)
 {
     if(state.data =="EXPLORING"){
@@ -227,51 +218,42 @@ void stateCallback(const std_msgs::String state)
     }else if(state.data =="TRANSITION"){
           STATE=LAST_STATE;
           CHANGE_STATE=TRUE;
+          publishState();
           stop();
     }else if(state.data =="STOPPED"){
+      ROS_INFO("Voy a parar!");
             STATE=STOPPED;
+            CHANGE_STATE=TRUE;
+            ROS_INFO("");
             stop();
 
-    }else if(state.data =="HOME_RETURN"){
-            LAST_STATE=STATE;
-            STATE=HOME_RETURN;
-            publishState();
-            stop();
-            return_home();
-
-    }else if(state.data =="STARTED"){
-            LAST_STATE=STARTED;
-            STATE=STARTED;
-            publishState();
-
-      }
+    }else if(state.data=="HOME_RETURN"){
+          LAST_STATE=STOPPED;
+          STATE=HOME_RETURN;
+          CHANGE_STATE=TRUE;
+          publishState();
+          stop();
+          return_home();
+    }
 }
 
 void batteryCallback(const kobuki_msgs::SensorState state)
 {
       int battery=state.battery;
-      //ROS_INFO("Bateria %d",battery);
-      if(BATTERY_LOW==FALSE&&battery<100){
-            if(STATE==EXPLORING||STATE==STARTED){
-              LAST_STATE=STATE;
-            }else{
-              LAST_STATE=STOPPED;
-            }
-            ROS_INFO("Voy a recargar!");
-            STATE=HOME_RETURN;
-            CHANGE_STATE=TRUE;
-            publishState();
-            return_home();
-            BATTERY_LOW=TRUE;
+      if (battery<100){
+        LAST_STATE=STATE;
+        ROS_INFO("Voy a recargar!");
+        STATE=HOME_RETURN;
+        CHANGE_STATE=TRUE;
+        publishState();
+        stop();
+        return_home();
 
       }
-      else if(BATTERY_LOW=TRUE&&battery>140){
-        ROS_INFO("Bateria cargada");
-        BATTERY_LOW=FALSE;
-        STATE=LAST_STATE;
-        publishState();
-      }
 }
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -284,7 +266,7 @@ int main(int argc, char **argv)
   ros::Subscriber sub = n.subscribe("amcl_pose", 10,chatterCallback);
   ros::Subscriber dir = n.subscribe("/camera/direction", 10,ballCallback);
   ros::Subscriber sta = n.subscribe("state", 10, stateCallback);
-  ros::Subscriber bat = n.subscribe("/mobile_base/sensors/core", 10, batteryCallback);
+  ros::Subscriber bat = n.subscribe("/mobile_base/sensors/core ", 10, batteryCallback);
   //declaración Publisher STATE
   std_msgs::String msg;
   //std::stringstream ss;
@@ -366,6 +348,7 @@ ROS_INFO("Volviendo al estado anterior: %d", STATE);
 
 
 
+ROS_INFO("Passo aquiiiii!");
 //------------------------------
 //Enviar el último estado
 //------------------------------

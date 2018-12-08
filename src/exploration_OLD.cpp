@@ -69,6 +69,20 @@ int main(int argc, char** argv){
       		 mapaM = *grid;
 
       	 }
+      // Sección eliminada. Genera problemas en la memória y es innecesaria.
+      //--------------------------------------------------------------------
+      //cargamos el mapa en una matriz para poder trabajar mejor con él
+      /*int** mapa = (int **)malloc(pixel_x*pixel_y*sizeof(int));
+       //int** mapa =new int*[pixel_x];
+       for(int i; i<pixel_x;i++){
+      		mapa[i] = new int[pixel_y];
+      		ROS_INFO("Fila consolidada");
+      			for(int j;j<pixel_y;j++){
+
+      					mapa[i][j]=(int)mapaM.data[i+j*pixel_x];
+      			}
+      	  }*/
+
 
       	//definimos PIXEL4GOAL
         //-------------------------------------
@@ -103,10 +117,11 @@ int main(int argc, char** argv){
                       }
                     }
                 }
-
+                //fin de revisar área de grid.
             }
         }
-
+        //Creamos la lista de goals budcando zeros en el GRID
+        //Pendiente hacerlo mas inteligente
         //-------------------------------------
         ROS_INFO("Tenim un GRID de %d punts", grid_x*grid_y);
         double *goals = (double *) malloc(grid_x * grid_y *4 *sizeof(double));
@@ -154,7 +169,41 @@ int main(int argc, char** argv){
                 sentido=1;
             }
       }
-      ROS_INFO("Se han definido %d puntos de exploracion.",numGoals);
+        ROS_INFO("Se han definido %d puntos de exploracion.",numGoals);
+
+         //Código que genera que supera el límite de memoria asignada.
+        /*int** exploredGrid =(int **)malloc(grid_x*grid_y*sizeof(int));
+      	//int** exploredGrid =new int*[grid_x];
+      	ROS_INFO("grid_x %d , grid_y %d", grid_x,grid_y);
+      	for(int k; k<grid_x;k++){
+          //ROS_INFO("Entro");
+      	 	exploredGrid[k] = new int[grid_y];
+      			 for(int l;l<grid_y;l++){
+                  ROS_INFO("Entro %d", l);
+      				 		//revisamos si el punto es visitable
+      					 //exploredGrid[k][l]=mapa[k*PIXEL4GOAL][l*PIXEL4GOAL];
+      					 //exploredGrid[k][l]=0;
+                 //ROS_INFO("Grid - (X: %d - Y: %d )",k,l);
+      					 //ROS_INFO("Grid - (X: %d - Y: %d ): %d",k,l, exploredGrid[k][l]);
+
+      			 }
+      	 }*/
+
+      	 //Creamos la lista de goals
+      	 //possibles goals, aunqué realmente menos pues hay zonas no exploradas y ocupadas.
+
+      	 /*
+      	 int goalsnumber=grid_x*grid_y;
+      	 double** goalslist=new double*[goalsnumber];
+      	 for(int z; z<grid_x;z++){
+      		 					goalslist[z] = new double[4];
+      						goalslist[z][0]=0;
+      						goalslist[z][1]=0;
+      						goalslist[z][2]=0;
+      						goalslist[z][3]=0;
+
+
+      		 }*/
 
       MoveBaseClient ac("move_base", true);
 
@@ -193,14 +242,13 @@ int main(int argc, char** argv){
                 ROS_INFO("Goal cancelado");
             ind++;
             if(ind==numGoals){
-              ind=0;
+              ind==0;
               control=0;
               msg.data = "RETURN_HOME";
               chatter_pub.publish(msg);
             }
             ros::spinOnce();
          }
-
          ros::spinOnce();
          loopRate.sleep();
      }

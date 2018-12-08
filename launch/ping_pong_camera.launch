@@ -4,7 +4,7 @@
 	<!-- User arguments -->
 
 
-	<arg name="video_device"  default="/dev/video1" />
+	<arg name="video_device"  default="/dev/video0" />
 	<arg name="show_image"  default="true" />
 	<arg name="name" default="camera"/>
 
@@ -61,8 +61,8 @@
 	</node>
 
 	<!-- display in/out image -->
-	<group if="$(arg show_image)">
-		<!--<node
+	<!--	<group if="$(arg show_image)">
+	<node
 			name="image_view_raw"
 			pkg="image_view"
 			type="image_view"
@@ -71,7 +71,7 @@
 			<remap from="image" to="/usb_cam/image_raw"/>
 			<param name="autosize" value="false" />
 		</node>-->
-		<node
+		<!--<node
 			name="image_view_out"
 			pkg="image_view"
 			type="image_view"
@@ -80,6 +80,6 @@
 			<remap from="image" to="/camera/image_out"/>
 			<param name="autosize" value="false" />
 		</node>
-	</group>
+	</group> -->
 
 </launch>
