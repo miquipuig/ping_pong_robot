@@ -2,13 +2,21 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-  <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="lib/bootstrap.min.css">
+  <link rel="stylesheet" href="lib/bootstrap-theme.min.css">
 
-  <script src="http://static.robotwebtools.org/EventEmitter2/current/eventemitter2.min.js"></script>
-  <script src="http://static.robotwebtools.org/roslibjs/current/roslib.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" />
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+
+  <script src="lib/jquery.min.js"></script>
+  <script src="lib/bootstrap.min.js"></script>
+
+  <script src="lib/eventemitter2.min.js"></script>
+  <script src="lib/roslib.min.js"></script>
 
   <script>
   // Connecting to ROS
@@ -16,8 +24,8 @@
   var ros = new ROSLIB.Ros();
 
   // Create a connection to the rosbridge WebSocket server.
-  //ros.connect('ws://'+window.8location.hostname+':9090');
-  ros.connect('ws://10.42.0.1:8080');
+  ros.connect('ws://'+window.location.hostname+':8080');
+  //ros.connect('ws://10.42.0.1:9090');
   //Subscribing to a Topic
   //----------------------
 
@@ -35,7 +43,7 @@
      var string = new ROSLIB.Message({
        data : "EXPLORING"
      });
-     //talker.publish(string);
+     talker.publish(string);
      console.log("publishing..." + string.data);
      $(this).button('reset');
    });
@@ -55,27 +63,80 @@
      console.log("publishing..." + string.data);
      $(this).button('reset');
    });
+   $("#startButton").click(function() {
+     var string = new ROSLIB.Message({
+       data : "STARTED"
+     });
+     talker.publish(string);
+     console.log("publishing..." + string.data);
+     $(this).button('reset');
+   });
+   $("#armButton").click(function() {
+     var string = new ROSLIB.Message({
+       data : "BALL_RECOLECT"
+     });
+     talker.publish(string);
+     console.log("publishing..." + string.data);
+     $(this).button('reset');
+   });
 
+   // and message type. Note that we can call publish or subscribe on the same topic object.
+   var listener = new ROSLIB.Topic({
+     ros : ros,
+     name : '/state',
+     messageType : 'std_msgs/String'
+   });
+
+   // Then we add a callback to be called every time a message is published on this topic.
+   listener.subscribe(function(message) {
+     console.log('Estado Actual:' +  message.data);
+
+     var a = document.getElementById('textArea');
+     a.textContent = 'Estado Actual: ' + message.data;
+   });
 
   });
   </script>
 </head>
 
-<body>
-  <h1></h1>
-  <div id="modal" class="container">
-    <div class="panel panel-default">
-      <div class="panel-heading">
-        Ping-Pong Robot
-      </div>
-      <div class="panel-body">
 
-        <p> Controles del robot</p>
-        <button type="button" id="button1"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Exploration</button>
-        <button type="button" id="button2"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Go Home</button>
-        <button type="button" id="button3"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Stop</button>
-      </div>
+
+<!------ Include the above in your HEAD tag ---------->
+
+<div class="container">
+    <div class="row">
+    <div class="col-md-3">
+      <div class="card-counter primary">
+        <i class="fa fa-code-fork"></i>
+        <span class="count-numbers">12</span>
+        <span class="count-name">Flowz</span>
       </div>
     </div>
-</body>
+
+    <div class="col-md-3">
+      <div class="card-counter danger">
+        <i class="fa fa-ticket"></i>
+        <span class="count-numbers">599</span>
+        <span class="count-name">Instances</span>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card-counter success">
+        <i class="fa fa-database"></i>
+        <span class="count-numbers">6875</span>
+        <span class="count-name">Data</span>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card-counter info">
+        <i class="fa fa-users"></i>
+        <span class="count-numbers">35</span>
+        <span class="count-name">Users</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 </html>

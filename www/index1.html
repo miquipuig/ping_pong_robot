@@ -9,7 +9,7 @@
 
   <script src="lib/eventemitter2.min.js"></script>
   <script src="lib/roslib.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <script>
   // Connecting to ROS
   // -----------------
@@ -79,67 +79,22 @@
      messageType : 'std_msgs/String'
    });
 
-   var listenerE = new ROSLIB.Topic({
-     ros : ros,
-     name : '/exploredP',
-     messageType : 'std_msgs/String'
-   });
-
-   var listenerEM = new ROSLIB.Topic({
-     ros : ros,
-     name : '/exploredPMax',
-     messageType : 'std_msgs/String'
-   });
-
-   listenerE.subscribe(function(message) {
-     console.log('Punto actual de exploración:' +  message.data);
-     var a = document.getElementById('textArea');
-     a.textContent = 'Estado Actual: ' + message.data;
-
-
-
-   });
-
-   listenerEM.subscribe(function(message) {
-     console.log('Estado Actual:' +  message.data);
-
-     var a = document.getElementById('textArea');
-     a.textContent = 'Estado Actual: ' + message.data;
-   });
-
-
    // Then we add a callback to be called every time a message is published on this topic.
    listener.subscribe(function(message) {
      console.log('Estado Actual:' +  message.data);
 
      var a = document.getElementById('textArea');
      a.textContent = 'Estado Actual: ' + message.data;
-     var b= document.getElementById('barra');
-
-      var c= $(this).parent().next('.progress').find('.progress-bar')
-      //var c= document.getElementById('barra');
-        .css('width', 60+'%')
-        .attr('aria-valuenow', 60);
-
-        var d= $(this).parent().next('.progress').find('.progress-bar')
-        //var c= document.getElementById('barra');
-          .css('width', 60+'%')
-          .attr('aria-valuenow', 60);
    });
 
   });
-
-
-
   </script>
 </head>
 
 <body>
   <h1></h1>
   <div id="modal" class="container">
-
     <div class="panel panel-default">
-
       <div class="panel-heading">
         Ping-Pong Robot
       </div>
@@ -148,18 +103,11 @@
         <p> Controles del robot</p>
         <div class="well" id="textArea"> </div>
 
-        <button type="button" id="startButton"  data-publishing-text="Publishing..." class="btn btn-secondary btn-lg btn-block" autocomplete="off" >Start</button>
-        <button type="button" id="armButton"  data-publishing-text="Publishing..." class="btn btn-secondary btn-lg btn-block" autocomplete="off" >Arm action</button>
-        <button type="button" id="button1"  data-publishing-text="Publishing..." class="btn btn-primary btn-lg btn-block" autocomplete="off" >Exploration</button>
-        <button type="button" id="button2"  data-publishing-text="Publishing..." class="btn btn-secondary btn-lg btn-block" autocomplete="off" >Go Home</button>
-        <button type="button" id="button3"  data-publishing-text="Publishing..." class="btn btn-secondary btn-lg btn-block" autocomplete="off" >Stop</button>
-
-        <p></p>
-          <p> Progreso exploración: </p>
-          <div class="progress">
-      <div id="barra" class="progress-bar progress-bar-striped active" role="progressbar"  aria-valuenow="40" aria-valuemin="0" aria-valuemax="100" style="width:40%">   40%
-      </div>
-    </div>
+        <button type="button" id="startButton"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Start</button>
+        <button type="button" id="armButton"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Arm action</button>
+        <button type="button" id="button1"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Exploration</button>
+        <button type="button" id="button2"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Go Home</button>
+        <button type="button" id="button3"  data-publishing-text="Publishing..." class="btn btn-default" autocomplete="off" >Stop</button>
       </div>
       </div>
     </div>

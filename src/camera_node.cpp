@@ -1,13 +1,13 @@
 #include "camera_node.h"
 
-const int GAUSSIAN_BLUR_SIZE = 9 ;
+const int GAUSSIAN_BLUR_SIZE = 7 ;
 const double GAUSSIAN_BLUR_SIGMA = 2;
-const double CANNY_EDGE_TH = 110; //subir menos bolas #Para1
+const double CANNY_EDGE_TH = 85; //subir menos bolas #Para1
 const double HOUGH_ACCUM_RESOLUTION = 2;
 const double MIN_CIRCLE_DIST = 40;
-const double HOUGH_ACCUM_TH = 50; //subir para menos bolas #Para2
-const int MIN_RADIUS = 10; //minimo radio de pelota.
-const int MAX_RADIUS = 45; //maximo radio de las pelotas.
+const double HOUGH_ACCUM_TH = 55; //subir para menos bolas #Para2
+const int MIN_RADIUS = 9; //minimo radio de pelota.
+const int MAX_RADIUS = 55; //maximo radio de las pelotas.
 const double xcenter=640/2; //resolución camera en x
 const double ycenter=480/2; //resolución camera en y
 const double  newycenter=ycenter+160; //punto en y donde se encuentra la X
@@ -15,8 +15,8 @@ const double cross= 15; //anchura de cruz central
 const double linewide= 4;
 const int MAX_BALLS=6; //Numero de pelotas que se analiza por cercania. Como mas grande mas posibles candidatas falsas.
 const int ZEROS_TIME=7; //Minimo de zeros seguidos para enviar dirección nula.
-const int BALLS_TIME=4; //Minimo de veces que se he de ver pelota para enviar dirección
-const int ZEROS_RESET_TIME=2; //Zeros seguidos para los cuales se resetea BALLS_TIME. Como mas grande mas cuesta encontrar candidato
+const int BALLS_TIME=2; //Minimo de veces que se he de ver pelota para enviar dirección
+const int ZEROS_RESET_TIME=1; //Zeros seguidos para los cuales se resetea BALLS_TIME. Como mas grande mas cuesta encontrar candidato
 const int MAX_DECTIONS_TO_AVOID=6; //Número de detecciones máximo de bolas para suponer sensor saturado.
 int ballscount=0;
 int zeroscount=0;
@@ -113,6 +113,7 @@ void RosImgProcessorNode::process()
                 //std::cout << "Circulo: " << circles[ii][0] <<";"<< circles[ii][1]<<";"<< circles[ii][2]<<std::endl;
                 //u=(cv::Mat_<double>(3,1)<< circles[ii][0] -xcenter, circles[ii][1] - ycenter,1);
                 u=(cv::Mat_<double>(3,1)<< circles[ii][0] , circles[ii][1] ,1);
+
 
                 selectionBalls[ii].x=circles[ii][0];
                 selectionBalls[ii].y=circles[ii][1];

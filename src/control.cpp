@@ -169,7 +169,7 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
           //ac.sendGoal(goal);
 
 
-      
+
     }
   }
 }
@@ -242,7 +242,12 @@ void stateCallback(const std_msgs::String state)
             STATE=STARTED;
             publishState();
 
-      }
+    }else if(state.data =="BALL_RECOLECT"){
+            LAST_STATE=STATE;
+            STATE=BALL_RECOLECT;
+            publishState();
+
+    }
 }
 
 void batteryCallback(const kobuki_msgs::SensorState state)
@@ -352,10 +357,14 @@ if(STATE==BALL_APPROACH){
 //BALL_RECOLECT
 //------------------------------
 else if(STATE==BALL_RECOLECT){
+
+
+stop();
 ROS_INFO("Simulacion de Recolectar pelota: 5 segundos");
 usleep(3000000);
 STATE=LAST_STATE;
 CHANGE_STATE=TRUE;
+
 ROS_INFO("Volviendo al estado anterior: %d", STATE);
 }
 

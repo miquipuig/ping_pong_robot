@@ -24,6 +24,10 @@ geometry_msgs::Point origin;
 int PIXEL4GOAL=0;
 int control=0;
 int ind=0;
+
+
+int maxpoints=0;
+int point=0;
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 void chatterCallback(const std_msgs::String st)
@@ -38,7 +42,19 @@ void chatterCallback(const std_msgs::String st)
 
 }
 
+/*void publishState(){
+  ros::NodeHandle n;
+  std_msgs::String msg;
+  std_msgs::String msg2;
 
+
+  //  ROS_INFO("Paso por aqui: %d  %d", point, maxpoints);
+  msg.data = "90";//std::to_string(point);
+  exploredP.publish(msg);
+  msg2.data ="70";//std::to_string(maxpoints);
+  exploredPMax.publish(msg);
+  ROS_INFO("Paso por aqui: %d  %d", point, maxpoints);
+}*/
 
 
 int main(int argc, char** argv){
@@ -46,7 +62,13 @@ int main(int argc, char** argv){
       ros::NodeHandle n;
       ros::Subscriber sub = n.subscribe("state", 10,chatterCallback);
       ros::Publisher chatter_pub = n.advertise<std_msgs::String>("state", 1000);
+      ros::Publisher exploredP = n.advertise<std_msgs::String>("/exploredP", 1000);
+      ros::Publisher exploredPMax = n.advertise<std_msgs::String>("/exploredPMax", 1000);
+
       std_msgs::String msg;
+
+      std_msgs::String msg1;
+      std_msgs::String msg2;
       //cargamos los valores del mapa
       boost::shared_ptr<nav_msgs::MapMetaData const> sharedEdge;
       nav_msgs::MapMetaData edge;
@@ -155,6 +177,15 @@ int main(int argc, char** argv){
             }
       }
       ROS_INFO("Se han definido %d puntos de exploracion.",numGoals);
+      maxpoints=numGoals;
+
+
+      //publicación Estados
+      msg1.data = std::to_string(point);
+      exploredP.publish(msg1);
+      msg2.data =std::to_string(maxpoints);
+      exploredPMax.publish(msg2);
+
 
       MoveBaseClient ac("move_base", true);
 
@@ -183,6 +214,16 @@ int main(int argc, char** argv){
             goal.target_pose.pose.orientation.w =goals[ind*4+2];
             goal.target_pose.pose.orientation.z =goals[ind*4+3];
             ROS_INFO("Moviendose a GOAL %d de %d",ind+1, numGoals);
+            maxpoints=numGoals;
+            point=ind+1;
+
+            //Publicación Estado
+            msg1.data = std::to_string(point);
+            exploredP.publish(msg1);
+            msg2.data =std::to_string(maxpoints);
+            exploredPMax.publish(msg2);
+
+
             ac.sendGoal(goal);
 
             ac.waitForResult();
