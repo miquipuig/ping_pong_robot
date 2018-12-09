@@ -2,15 +2,15 @@
 
 const int GAUSSIAN_BLUR_SIZE = 9 ;
 const double GAUSSIAN_BLUR_SIGMA = 2;
-const double CANNY_EDGE_TH = 120; //subir menos bolas #Para1
+const double CANNY_EDGE_TH = 100; //subir menos bolas #Para1
 const double HOUGH_ACCUM_RESOLUTION = 2;
 const double MIN_CIRCLE_DIST = 40;
-const double HOUGH_ACCUM_TH = 60; //subir para menos bolas #Para2
+const double HOUGH_ACCUM_TH = 50; //subir para menos bolas #Para2
 const int MIN_RADIUS = 15; //minimo radio de pelota.
-const int MAX_RADIUS = 46; //maximo radio de las pelotas.
-const double xcenter=640/2-60; //resolución camera en x
+const int MAX_RADIUS = 55; //maximo radio de las pelotas.
+const double xcenter=640/2; //resolución camera en x
 const double ycenter=480/2; //resolución camera en y
-const double  newycenter=ycenter+94; //punto en y donde se encuentra la X
+const double  newycenter=ycenter+170; //punto en y donde se encuentra la X
 const double cross= 15; //anchura de cruz central
 const double linewide= 4;
 const int MAX_BALLS=6; //Numero de pelotas que se analiza por cercania. Como mas grande mas posibles candidatas falsas.

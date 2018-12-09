@@ -11,5 +11,5 @@
   <node name="control"		pkg="ping_pong_robot"		type="control" 	output="screen"> </node>
 
   <!-- APP MOBIL -->
-
+  <include file="$(find arm)/launch/control_arm.launch"/>
 </launch>

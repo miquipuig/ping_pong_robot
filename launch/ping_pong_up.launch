@@ -10,6 +10,10 @@
     <!-- Control y acercamiento a pelotas -->
   <node name="control"		pkg="ping_pong_robot"		type="control" 	output="screen"> </node>
 
+
+  <!--Brazo robot-->
+
+    <include file="$(find arm)/launch/control_arm.launch"/>
   <!-- APP MOBIL -->
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" >
     <arg name="port" value="8080"/>

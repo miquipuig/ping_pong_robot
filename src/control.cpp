@@ -36,13 +36,17 @@ int CHANGE_STATE=0;
 int BATTERY_LOW=FALSE;
 
 //variables de aproximación a pelota
-const double factorX=0.0004; //Factor de escalado direccional.
-const double factorA=0.0008; //Factor de escalado angular
-const double PRECISION=3; //precisión que se ha de cumplir para recojer la pelota. Mas pequeño mas precisión
-const double MINIUM_X=0.003; // Mínimo factor de movimiento en X
-const double MINIUM_Z=0.0060; // Mínimo factor de movimiento angular
+const double factorX=0.0006; //Factor de escalado direccional.
+const double factorA=0.0009; //Factor de escalado angular
+const double PRECISION=5; //precisión que se ha de cumplir para recojer la pelota. Mas pequeño mas precisión
+const double MINIUM_X=0.03; // Mínimo factor de movimiento en X
+const double MINIUM_Z=0.0900; // Mínimo factor de movimiento angular
 geometry_msgs::Vector3 aprox_vector;
 geometry_msgs::Twist movetoball;
+
+//Posició braç
+geometry_msgs::Point arm;
+geometry_msgs::Point grip;
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 //declaración del vector de la covarianza
@@ -177,6 +181,7 @@ void chatterCallback(const geometry_msgs::PoseWithCovarianceStamped vector)
 //Ball Recolection detects
 void ballCallback(const geometry_msgs::Vector3& vector){
   aprox_vector=vector;
+
   if (vector.z>0){
   aprox_vector=vector;
       //ROS_INFO("estado: %d",STATE);
@@ -243,7 +248,9 @@ void stateCallback(const std_msgs::String state)
             publishState();
 
     }else if(state.data =="BALL_RECOLECT"){
-            LAST_STATE=STATE;
+            if(STATE!=BALL_RECOLECT){
+                LAST_STATE=STATE;
+            }
             STATE=BALL_RECOLECT;
             publishState();
 
@@ -288,6 +295,7 @@ int main(int argc, char **argv)
   ros::Subscriber dir = n.subscribe("/camera/direction", 10,ballCallback);
   ros::Subscriber sta = n.subscribe("state", 10, stateCallback);
   ros::Subscriber bat = n.subscribe("/mobile_base/sensors/core", 10, batteryCallback);
+
   //declaración Publisher STATE
   std_msgs::String msg;
   //std::stringstream ss;
@@ -295,12 +303,28 @@ int main(int argc, char **argv)
   //declaración Publisher TELEOP
   ros::Publisher ball_approach = n.advertise<geometry_msgs::Twist>("/mobile_base/commands/velocity", 1000);
 
-  ros::Rate loop_rate(10);
+  ros::Publisher armPub = n.advertise<geometry_msgs::Point>("/topic_coordenades_objecte", 1000);
 
+  ros::Publisher gripPub = n.advertise<geometry_msgs::Point>("/topic_coordenades_pinca", 1000);
 
+  ros::Rate loop_rate(50);
+  int count=0;
+  int approachCount=0;
   while (ros::ok())
   {
+    if (count<20){
+        count++;
+    }else{
+      //ROS_INFO("Envio estado");
+      arm.x=4;
+      arm.y=0;
+      arm.z=0;
+      armPub.publish(arm);
+      count=0;
+      grip.x=50;
+      gripPub.publish(grip);
 
+  }
   //CANCELAR ACCIONES DE move_base
   /*if(CANCEL_GOAL==TRUE){
     stop();
@@ -310,64 +334,281 @@ int main(int argc, char **argv)
 //------------------------------
 //BALL_APPROACH
 //------------------------------
-if(STATE==BALL_APPROACH){
-  //ROS_INFO("I like balls");
-  //ROS_INFO("1 - Canvi estat a BALL_RECOLECT? %d",STATE );
-  double xb = aprox_vector.y*factorX;
-  double zb = -aprox_vector.x*factorA;
-  //ROS_INFO ("INI xb: %lf  zb: %lf", xb,zb);
-  if(fabs(xb)<MINIUM_X){
-    //ROS_INFO ("MID abs(xb): %lf  MINIUM_X: %lf", abs(xb),MINIUM_X);
-    //ROS_INFO("Minimo X");
-    if(xb>0){
-        //ROS_INFO("Minimo X +");
-        xb=MINIUM_X;
-    }else if(xb<0){
-      //ROS_INFO("Minimo X -");
-      xb=-MINIUM_X;
-    }
-  }
+if (approachCount==0){
+      if(STATE==BALL_APPROACH){
+        //ROS_INFO("I like balls");
+        //ROS_INFO("1 - Canvi estat a BALL_RECOLECT? %d",STATE );
+        double xb = aprox_vector.y*factorX;
+        double zb = -aprox_vector.x*factorA;
+        //ROS_INFO ("INI xb: %lf  zb: %lf", xb,zb);
+        if(fabs(xb)<MINIUM_X){
+          //ROS_INFO ("MID abs(xb): %lf  MINIUM_X: %lf", abs(xb),MINIUM_X);
+          //ROS_INFO("Minimo X");
+          if(xb>0){
+              //ROS_INFO("Minimo X +");
+              xb=MINIUM_X;
+          }else if(xb<0){
+            //ROS_INFO("Minimo X -");
+            xb=-MINIUM_X;
+          }
+        }
 
-  if(fabs(zb)<MINIUM_Z){
-      //ROS_INFO("Minimo Z");
-    if(zb>0){
-        //ROS_INFO("Minimo Z +");
-      zb=MINIUM_Z;
-    }else if(zb<0){
-      //ROS_INFO("Minimo Z -");
-      zb=-MINIUM_Z;
-    }
-  }
-  //ROS_INFO ("Movimiento en x: %lf  Angular: %lf", xb,zb);
+        if(fabs(zb)<MINIUM_Z){
+            //ROS_INFO("Minimo Z");
+          if(zb>0){
+              //ROS_INFO("Minimo Z +");
+            zb=MINIUM_Z;
+          }else if(zb<0){
+            //ROS_INFO("Minimo Z -");
+            zb=-MINIUM_Z;
+          }
+        }
+        //ROS_INFO ("Movimiento en x: %lf  Angular: %lf", xb,zb);
 
-  movetoball.linear.x =xb;
-  movetoball.angular.z=zb;
+        movetoball.linear.x =xb;
+        movetoball.angular.z=zb;
 
-  ball_approach.publish(movetoball);
+        ball_approach.publish(movetoball);
 
-  if(abs(aprox_vector.y)<=PRECISION && abs(aprox_vector.x)<=PRECISION){
-    STATE=BALL_RECOLECT;
-    CHANGE_STATE=TRUE;
-    publishState();
-    //ROS_INFO("2 - Canvi estat a BALL_RECOLECT? %d",STATE );
-  }
+        if(abs(aprox_vector.y)<=PRECISION && abs(aprox_vector.x)<=PRECISION){
+          STATE=BALL_RECOLECT;
+          CHANGE_STATE=TRUE;
+          publishState();
+          //ROS_INFO("2 - Canvi estat a BALL_RECOLECT? %d",STATE );
+        }
+      }
+
+      //------------------------------
+      //BALL_RECOLECT
+      //------------------------------
+      else if(STATE==BALL_RECOLECT){
+
+
+      stop();
+      ROS_INFO("Recollida de pilota");
+
+      arm.x=4;
+      arm.y=0;
+      arm.z=0;
+      grip.x=20;
+
+      armPub.publish(arm);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      ROS_INFO("1.-Posicio inicial.");
+
+
+      usleep(1000000);
+
+      arm.x=10;
+      arm.y=0;
+      arm.z=0;
+      grip.x=20;
+
+      armPub.publish(arm);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+
+      ROS_INFO("2.-Posicio en U.");
+
+      usleep(2000000);
+      arm.x=19;
+      arm.y=0;
+      arm.z=-11.5;
+      grip.x=20;
+
+      armPub.publish(arm);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+
+      ROS_INFO("3.-Posicio final oberta.");
+      usleep(2000000);
+      arm.x=19;
+      arm.y=0;
+      arm.z=-11.5;
+      grip.x=20;
+
+      armPub.publish(arm);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+
+      ROS_INFO("3.-Posicio final oberta.");
+      usleep(500000);
+      arm.x=19;
+      arm.y=0;
+      arm.z=-11.5;
+      grip.x=30;
+
+      armPub.publish(arm);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      ROS_INFO("4.-Posicio final 30.");
+
+
+      usleep(500000);
+      arm.x=19;
+      arm.y=0;
+      arm.z=-11.5;
+      grip.x=38;
+
+      armPub.publish(arm);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+
+      ROS_INFO("5.-Posicio final 38.");
+      usleep(500000);
+      arm.x=19;
+      arm.y=0;
+      arm.z=-11.5;
+      grip.x=50;
+
+      armPub.publish(arm);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+      usleep(100000);
+      gripPub.publish(grip);
+
+      ROS_INFO("6.-Posicio final tancada.");
+
+      usleep(2000000);
+      arm.x=19;
+      arm.y=0;
+      arm.z=-8;
+      grip.x=50;
+
+      armPub.publish(arm);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+
+      ROS_INFO("6.-Posicio de retorn.");
+      usleep(2000000);
+
+      arm.x=19;
+      arm.y=0;
+      arm.z=-5;
+      grip.x=50;
+
+      armPub.publish(arm);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+
+      ROS_INFO("6.-Posicio de retorn.");
+      usleep(2000000);
+
+      arm.x=10;
+      arm.y=0;
+      arm.z=0;
+      grip.x=50;
+
+      armPub.publish(arm);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+
+
+      ROS_INFO("6.-Posicio de retorn en U.");
+      usleep(1000000);
+
+      arm.x=10;
+      arm.y=0;
+      arm.z=0;
+      grip.x=50;
+
+      armPub.publish(arm);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+
+
+      ROS_INFO("6.-Posicio de retorn en U.");
+
+      usleep(1000000);
+
+      arm.x=4;
+      arm.y=0;
+      arm.z=0;
+      grip.x=50;
+
+      armPub.publish(arm);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+      usleep(10000);
+      gripPub.publish(grip);
+
+      ROS_INFO("8.-Posicio de inicial tancada.");
+      usleep(2000000);
+
+
+
+
+      STATE=LAST_STATE;
+      CHANGE_STATE=TRUE;
+      publishState();
+      approachCount=700;
+
+      ROS_INFO("Volviendo al estado anterior: %d", STATE);
+      }
+
+}else{
+approachCount--;
+
+
 }
-
-//------------------------------
-//BALL_RECOLECT
-//------------------------------
-else if(STATE==BALL_RECOLECT){
-
-
-stop();
-ROS_INFO("Simulacion de Recolectar pelota: 5 segundos");
-usleep(3000000);
-STATE=LAST_STATE;
-CHANGE_STATE=TRUE;
-
-ROS_INFO("Volviendo al estado anterior: %d", STATE);
-}
-
 
 
 

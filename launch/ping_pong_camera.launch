@@ -17,8 +17,8 @@
 		type="usb_cam_node"
 		output="screen" >
 		<param name="video_device" value="$(arg video_device)" />
-		<param name="image_width" value="800" />
-		<param name="image_height" value="600" />
+		<param name="image_width" value="640" />
+		<param name="image_height" value="480" />
 		<param name="pixel_format" value="yuyv" />
 		<param name="camera_frame_id" value="usb_cam" />
 		<param name="framerate" value="30" />
