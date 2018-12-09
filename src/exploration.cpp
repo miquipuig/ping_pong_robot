@@ -10,6 +10,7 @@
 #include "geometry_msgs/Point.h"
 #include "nav_msgs/OccupancyGrid.h"
 #include "std_msgs/String.h"
+#include "geometry_msgs/Point.h"
 //#include <Eigen/Eigen>
 const double PI=3.14159265359;
 //Eigen::MatrixXd eMap;
@@ -64,11 +65,12 @@ int main(int argc, char** argv){
       ros::Publisher chatter_pub = n.advertise<std_msgs::String>("state", 1000);
       ros::Publisher exploredP = n.advertise<std_msgs::String>("/exploredP", 1000);
       ros::Publisher exploredPMax = n.advertise<std_msgs::String>("/exploredPMax", 1000);
+      ros::Publisher exploredTotal = n.advertise<geometry_msgs::Point>("/exploredTotal", 1000);
 
       std_msgs::String msg;
 
-      std_msgs::String msg1;
-      std_msgs::String msg2;
+
+      geometry_msgs::Point msg3;
       //cargamos los valores del mapa
       boost::shared_ptr<nav_msgs::MapMetaData const> sharedEdge;
       nav_msgs::MapMetaData edge;
@@ -181,11 +183,9 @@ int main(int argc, char** argv){
 
 
       //publicación Estados
-      msg1.data = std::to_string(point);
-      exploredP.publish(msg1);
-      msg2.data =std::to_string(maxpoints);
-      exploredPMax.publish(msg2);
-
+      msg3.x=maxpoints;
+      msg3.y=point;
+      exploredTotal.publish(msg3);
 
       MoveBaseClient ac("move_base", true);
 
@@ -218,11 +218,10 @@ int main(int argc, char** argv){
             point=ind+1;
 
             //Publicación Estado
-            msg1.data = std::to_string(point);
-            exploredP.publish(msg1);
-            msg2.data =std::to_string(maxpoints);
-            exploredPMax.publish(msg2);
 
+            msg3.x=maxpoints;
+            msg3.y=point;
+            exploredTotal.publish(msg3);
 
             ac.sendGoal(goal);
 
