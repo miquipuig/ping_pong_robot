@@ -79,7 +79,7 @@ void RosImgProcessorNode::process()
 		//find the ball
 		//TODO
     circles.clear();
-    cv::cvtColor(cv_img_ptr_in_->image, gray_image, CV_RGB2GRAY);
+    cv::cvtColor(cv_img_ptr_in_->image, gray_image, CV_BGR2GRAY);
     cv::GaussianBlur( gray_image, gray_image, cv::Size(GAUSSIAN_BLUR_SIZE, GAUSSIAN_BLUR_SIZE), GAUSSIAN_BLUR_SIGMA );
     cv::HoughCircles( gray_image, circles, CV_HOUGH_GRADIENT, HOUGH_ACCUM_RESOLUTION, MIN_CIRCLE_DIST, CANNY_EDGE_TH, HOUGH_ACCUM_TH, MIN_RADIUS, MAX_RADIUS );
 
