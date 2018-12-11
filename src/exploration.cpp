@@ -16,7 +16,7 @@ const double PI=3.14159265359;
 //Eigen::MatrixXd eMap;
 
 const double GOAL4METER=1; //Goals por cada metro real de distancia.
-const int AREA_GRID_PX=10; //Area de exploración de obstáculo cerca del punto de grid
+const int AREA_GRID_PX=15; //Area de exploración de obstáculo cerca del punto de grid
 float map_resolution = 0;
 int pixel_x = 0; //[pixeles de ancgura]
 int pixel_y = 0; //[pixeles de altura]

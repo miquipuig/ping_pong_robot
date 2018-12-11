@@ -36,11 +36,11 @@ int CHANGE_STATE=0;
 int BATTERY_LOW=FALSE;
 
 //variables de aproximación a pelota
-const double factorX=0.0006; //Factor de escalado direccional.
-const double factorA=0.0009; //Factor de escalado angular
-const double PRECISION=5; //precisión que se ha de cumplir para recojer la pelota. Mas pequeño mas precisión
-const double MINIUM_X=0.03; // Mínimo factor de movimiento en X
-const double MINIUM_Z=0.0900; // Mínimo factor de movimiento angular
+const double factorX=0.0004; //Factor de escalado direccional.
+const double factorA=0.0008; //Factor de escalado angular
+const double PRECISION=3; //precisión que se ha de cumplir para recojer la pelota. Mas pequeño mas precisión
+const double MINIUM_X=0.003; // Mínimo factor de movimiento en X
+const double MINIUM_Z=0.0060; // Mínimo factor de movimiento angular
 geometry_msgs::Vector3 aprox_vector;
 geometry_msgs::Twist movetoball;
 

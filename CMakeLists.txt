@@ -213,6 +213,7 @@ add_executable(camera ${SRCS})
 add_executable(simple_navigation_goals src/simple_navigation_goals.cpp)
 add_executable(kidnapping src/kidnapping.cpp)
 add_executable(control src/control.cpp)
+add_executable(control_demo src/control_demo.cpp)
 add_executable(exploration src/exploration.cpp)
 
 #add_dependencies(pipol_tracker_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${PROJECT_NAME}_generate_messages_cpp)
@@ -220,6 +221,7 @@ target_link_libraries(camera ${OpenCV_LIBS} ${catkin_LIBRARIES})
 target_link_libraries(simple_navigation_goals ${catkin_LIBRARIES})
 target_link_libraries(kidnapping ${catkin_LIBRARIES})
 target_link_libraries(control ${catkin_LIBRARIES})
+target_link_libraries(control_demo ${catkin_LIBRARIES})
 target_link_libraries(exploration ${catkin_LIBRARIES})
 
 #install binaries

@@ -1,13 +1,13 @@
 #include "camera_node.h"
 
-const int GAUSSIAN_BLUR_SIZE = 7 ;
+const int GAUSSIAN_BLUR_SIZE = 9 ;
 const double GAUSSIAN_BLUR_SIGMA = 2;
-const double CANNY_EDGE_TH = 80; //subir menos bolas #Para1
+const double CANNY_EDGE_TH = 120; //subir menos bolas #Para1
 const double HOUGH_ACCUM_RESOLUTION = 2;
 const double MIN_CIRCLE_DIST = 40;
-const double HOUGH_ACCUM_TH = 40; //subir para menos bolas #Para2
+const double HOUGH_ACCUM_TH = 60; //subir para menos bolas #Para2
 const int MIN_RADIUS = 15; //minimo radio de pelota.
-const int MAX_RADIUS = 45; //maximo radio de las pelotas.
+const int MAX_RADIUS = 46; //maximo radio de las pelotas.
 const double xcenter=640/2-60; //resolución camera en x
 const double ycenter=480/2; //resolución camera en y
 const double  newycenter=ycenter+94; //punto en y donde se encuentra la X
@@ -15,8 +15,8 @@ const double cross= 15; //anchura de cruz central
 const double linewide= 4;
 const int MAX_BALLS=6; //Numero de pelotas que se analiza por cercania. Como mas grande mas posibles candidatas falsas.
 const int ZEROS_TIME=5; //Minimo de zeros seguidos para enviar dirección nula.
-const int BALLS_TIME=3; //Minimo de veces que se he de ver pelota para enviar dirección
-const int ZEROS_RESET_TIME=2; //Zeros seguidos para los cuales se resetea BALLS_TIME. Como mas grande mas cuesta encontrar candidato
+const int BALLS_TIME=2; //Minimo de veces que se he de ver pelota para enviar dirección
+const int ZEROS_RESET_TIME=1; //Zeros seguidos para los cuales se resetea BALLS_TIME. Como mas grande mas cuesta encontrar candidato
 const int MAX_DECTIONS_TO_AVOID=6; //Número de detecciones máximo de bolas para suponer sensor saturado.
 int ballscount=0;
 int zeroscount=0;
