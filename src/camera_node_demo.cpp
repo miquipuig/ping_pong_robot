@@ -1,13 +1,13 @@
 #include "camera_node.h"
 
-const int GAUSSIAN_BLUR_SIZE = 9 ;
+const int GAUSSIAN_BLUR_SIZE = 7 ;
 const double GAUSSIAN_BLUR_SIGMA = 2;
-const double CANNY_EDGE_TH = 120; //subir menos bolas #Para1
+const double CANNY_EDGE_TH = 80; //subir menos bolas #Para1
 const double HOUGH_ACCUM_RESOLUTION = 2;
 const double MIN_CIRCLE_DIST = 40;
-const double HOUGH_ACCUM_TH = 60; //subir para menos bolas #Para2
-const int MIN_RADIUS = 30; //minimo radio de pelota.
-const int MAX_RADIUS = 50; //maximo radio de las pelotas.
+const double HOUGH_ACCUM_TH = 40; //subir para menos bolas #Para2
+const int MIN_RADIUS = 15; //minimo radio de pelota.
+const int MAX_RADIUS = 45; //maximo radio de las pelotas.
 const double xcenter=640/2-60; //resolución camera en x
 const double ycenter=480/2; //resolución camera en y
 const double  newycenter=ycenter+94; //punto en y donde se encuentra la X
@@ -18,6 +18,8 @@ const int ZEROS_TIME=5; //Minimo de zeros seguidos para enviar dirección nula.
 const int BALLS_TIME=3; //Minimo de veces que se he de ver pelota para enviar dirección
 const int ZEROS_RESET_TIME=2; //Zeros seguidos para los cuales se resetea BALLS_TIME. Como mas grande mas cuesta encontrar candidato
 const int MAX_DECTIONS_TO_AVOID=6; //Número de detecciones máximo de bolas para suponer sensor saturado.
+const int FILTRO_INFERIOR_y=50; //Número de píxeles que no contamos en la zona inferior
+const int FILTRO_INFERIOR_x=50; //Número de píxeles que no contamos en la zona inferior en x por cada lado
 int ballscount=0;
 int zeroscount=0;
 

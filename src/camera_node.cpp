@@ -17,7 +17,10 @@ const int MAX_BALLS=6; //Numero de pelotas que se analiza por cercania. Como mas
 const int ZEROS_TIME=5; //Minimo de zeros seguidos para enviar dirección nula.
 const int BALLS_TIME=3; //Minimo de veces que se he de ver pelota para enviar dirección
 const int ZEROS_RESET_TIME=2; //Zeros seguidos para los cuales se resetea BALLS_TIME. Como mas grande mas cuesta encontrar candidato
-const int MAX_DECTIONS_TO_AVOID=6; //Número de detecciones máximo de bolas para suponer sensor saturado.
+const int MAX_DECTIONS_TO_AVOID=15; //Número de detecciones máximo de bolas para suponer sensor saturado.
+const int FILTRO_INFERIOR_y=70; //Número de píxeles que no contamos en la zona inferior
+const int FILTRO_INFERIOR_x=50; //Número de píxeles que no contamos en la zona inferior en x por cada lado
+
 int ballscount=0;
 int zeroscount=0;
 
@@ -112,33 +115,47 @@ void RosImgProcessorNode::process()
         {
                 //std::cout << "Circulo: " << circles[ii][0] <<";"<< circles[ii][1]<<";"<< circles[ii][2]<<std::endl;
                 //u=(cv::Mat_<double>(3,1)<< circles[ii][0] -xcenter, circles[ii][1] - ycenter,1);
-                u=(cv::Mat_<double>(3,1)<< circles[ii][0] , circles[ii][1] ,1);
+                //u=(cv::Mat_<double>(3,1)<< circles[ii][0] , circles[ii][1] ,1);
+                //Filtro zona inferior
+                //if((circles[ii][0]<xcenter-FILTRO_INFERIOR_x)&&(circles[ii][0]>xcenter+FILTRO_INFERIOR_x)&&circles[ii][1]<ycenter-FILTRO_INFERIOR_y){
+                if((circles[ii][1]<ycenter*2-FILTRO_INFERIOR_y)){
+                    if((circles[ii][0]<xcenter-FILTRO_INFERIOR_x)||(circles[ii][0]>xcenter+FILTRO_INFERIOR_x)){
+                      ROS_INFO("Entro");
+                      selectionBalls[ii].x=circles[ii][0];
+                      selectionBalls[ii].y=circles[ii][1];
+                      selectionBalls[ii].z=circles[ii][2];
+                      double hip=hypotenuse(circles[ii][0],circles[ii][1],newcenter.x, newcenter.y);
+                      if(hip<miniumDistance){
+                        miniumDistance=hip;
+                        closeBall=ii;
+                      }
 
+                      center = cv::Point(cvRound(circles[ii][0]), cvRound(circles[ii][1]));
+                      radius = cvRound(circles[ii][2]);
+                      cv::circle(cv_img_out_.image, center, 5, cv::Scalar(0,0,255), -1, linewide, 0 );// circle center in green
+                      cv::circle(cv_img_out_.image, center, radius, cv::Scalar(0,0,255), 3, linewide, 0 );// circle perimeter in red
+                      //vector Ray director
+                      cv::line(cv_img_out_.image,newcenter,center,cv::Scalar(0,0,255), linewide); //linea
 
-                selectionBalls[ii].x=circles[ii][0];
-                selectionBalls[ii].y=circles[ii][1];
-                selectionBalls[ii].z=circles[ii][2];
-                double hip=hypotenuse(circles[ii][0],circles[ii][1],newcenter.x, newcenter.y);
-                if(hip<miniumDistance){
-                  miniumDistance=hip;
-                  closeBall=ii;
-                }
+                      /*geometry_msgs::Vector3 direction;
+                      direction.x = ray_direction_.at<double>(0, 0);
+                      direction.y = ray_direction_.at<double>(1, 0);
+                      direction.z = ray_direction_.at<double>(2, 0);
+                      ray_direction_circle_pub.publish(direction);*/
+                  }else{
+                    ROS_INFO("Paso por aqui2");
+                      balls_size--;
+                      ii--;
+                  }
+              }else{
+                ROS_INFO("Paso por aqui");
+                  balls_size--;
+                  ii--;
 
-                center = cv::Point(cvRound(circles[ii][0]), cvRound(circles[ii][1]));
-                radius = cvRound(circles[ii][2]);
-                cv::circle(cv_img_out_.image, center, 5, cv::Scalar(0,0,255), -1, linewide, 0 );// circle center in green
-                cv::circle(cv_img_out_.image, center, radius, cv::Scalar(0,0,255), 3, linewide, 0 );// circle perimeter in red
-                //vector Ray director
-                cv::line(cv_img_out_.image,newcenter,center,cv::Scalar(0,0,255), linewide); //linea
-
-                /*geometry_msgs::Vector3 direction;
-                direction.x = ray_direction_.at<double>(0, 0);
-                direction.y = ray_direction_.at<double>(1, 0);
-                direction.z = ray_direction_.at<double>(2, 0);
-                ray_direction_circle_pub.publish(direction);*/
-
+              }
         }
     }
+
 
       if (balls_size>0&&balls_size<MAX_DECTIONS_TO_AVOID){
         ballscount+=1;
