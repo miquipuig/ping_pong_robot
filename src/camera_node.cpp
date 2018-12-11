@@ -120,7 +120,7 @@ void RosImgProcessorNode::process()
                 //if((circles[ii][0]<xcenter-FILTRO_INFERIOR_x)&&(circles[ii][0]>xcenter+FILTRO_INFERIOR_x)&&circles[ii][1]<ycenter-FILTRO_INFERIOR_y){
                 if((circles[ii][1]<ycenter*2-FILTRO_INFERIOR_y)){
                     if((circles[ii][0]<xcenter-FILTRO_INFERIOR_x)||(circles[ii][0]>xcenter+FILTRO_INFERIOR_x)){
-                      ROS_INFO("Entro");
+                    
                       selectionBalls[ii].x=circles[ii][0];
                       selectionBalls[ii].y=circles[ii][1];
                       selectionBalls[ii].z=circles[ii][2];
@@ -143,12 +143,12 @@ void RosImgProcessorNode::process()
                       direction.z = ray_direction_.at<double>(2, 0);
                       ray_direction_circle_pub.publish(direction);*/
                   }else{
-                    ROS_INFO("Paso por aqui2");
+
                       balls_size--;
                       ii--;
                   }
               }else{
-                ROS_INFO("Paso por aqui");
+
                   balls_size--;
                   ii--;
 
