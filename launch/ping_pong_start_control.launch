@@ -11,5 +11,5 @@
     <arg name="port" value="8080"/>
   </include>
   <include file="$(find roswww)/launch/roswww.launch" />
-  
+<node name="rviz" pkg="rviz" type="rviz" args="-d $(find turtlebot_stage)/rviz/robot_navigation.rviz"/>
 </launch>

@@ -8,8 +8,8 @@
   <node name="exploration"		pkg="ping_pong_robot"		type="exploration" 	output="screen"> </node>
 
     <!-- Control y acercamiento a pelotas -->
-  <node name="control_demo"		pkg="ping_pong_robot"		type="control_demo" 	output="screen"> </node>
-
+<!--  <node name="control_demo"		pkg="ping_pong_robot"		type="control_demo" 	output="screen"> </node>-->
+  <node name="control"		pkg="ping_pong_robot"		type="control" 	output="screen"> </node>
   <!-- APP MOBIL -->
   <include file="$(find rosbridge_server)/launch/rosbridge_websocket.launch" >
     <arg name="port" value="8080"/>

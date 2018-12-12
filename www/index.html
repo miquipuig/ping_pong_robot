@@ -74,7 +74,14 @@
      console.log("publishing..." + string.data);
      $(this).button('reset');
    });
-
+   $("#ballreturn").click(function() {
+     var string = new ROSLIB.Message({
+       data : "BALL_RETURN"
+     });
+     talker.publish(string);
+     console.log("publishing..." + string.data);
+     $(this).button('reset');
+   });
    // and message type. Note that we can call publish or subscribe on the same topic object.
    var listener = new ROSLIB.Topic({
      ros : ros,
@@ -148,6 +155,7 @@
         <button type="button" id="button1"  data-publishing-text="Publishing..." class="btn btn-primary btn-lg btn-block" autocomplete="off" >Exploration</button>
         <button type="button" id="button2"  data-publishing-text="Publishing..." class="btn btn-secondary btn-lg btn-block" autocomplete="off" >Go Home</button>
         <button type="button" id="button3"  data-publishing-text="Publishing..." class="btn btn-secondary btn-lg btn-block" autocomplete="off" >Stop</button>
+        <button type="button" id="ballreturn"  data-publishing-text="Publishing..." class="btn btn-secondary btn-lg btn-block" autocomplete="off" >Activation return</button>
 
         <p></p>
           <p> Progreso exploración: </p>

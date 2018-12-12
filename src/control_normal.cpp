@@ -30,14 +30,11 @@ const int EXPLORING= 4;
 const int LOST =5;
 const int HOME_RETURN =6;
 const int TRANSITION =7;
-const int RETURN_BALL=8;
 int STATE=1;
 int LAST_STATE=0;
-int LAST_STATE2=0;
 int CHANGE_STATE=0;
 int BATTERY_LOW=FALSE;
-int RETURN_BALL_ACTIVATION=TRUE;
-int ball_detect=FALSE;
+
 //variables de aproximación a pelota
 const double factorX=0.0006; //Factor de escalado direccional.
 const double factorA=0.0009; //Factor de escalado angular
@@ -90,12 +87,7 @@ void publishState(){
     }else if(STATE==HOME_RETURN){
           msg.data =  "HOME_RETURN";
          chatter_pub.publish(msg);
-
-    }else if(STATE==RETURN_BALL){
-        msg.data =  "RETURN_BALL";
-       chatter_pub.publish(msg);
     }
-
 
     CHANGE_STATE=FALSE;
   }
@@ -194,8 +186,6 @@ void ballCallback(const geometry_msgs::Vector3& vector){
   aprox_vector=vector;
 
   if (vector.z>0){
-    //ROS_INFO("BALL DETECT TRUE %d", LAST_STATE);
-    ball_detect=true;
   aprox_vector=vector;
       //ROS_INFO("estado: %d",STATE);
       if(STATE==EXPLORING||STATE==STARTED){
@@ -207,16 +197,12 @@ void ballCallback(const geometry_msgs::Vector3& vector){
         stop();
       }
   }else if(STATE==BALL_APPROACH){
-    //ROS_INFO("BALL DETECT TRUE %d", LAST_STATE);
-      ball_detect=false;
+
       STATE=LAST_STATE;
       CHANGE_STATE=TRUE;
       publishState();
 
       //ACCIONES DE BRAZO MECÁNICO AQUÍ
-  }else{
-      //ROS_INFO("BALL DETECT FALSE %d", LAST_STATE);
-    ball_detect=false;
   }
 }
 
@@ -231,7 +217,6 @@ bool return_home(){
   goal.target_pose.pose.orientation.w = 1.0;
   goal.target_pose.pose.orientation.z = 0.0;
 
-
      while(!ac.waitForServer(ros::Duration(5.0))){
         ROS_INFO("cacacacac");
       }
@@ -239,52 +224,6 @@ bool return_home(){
 
       return true;
 }
-
-bool return_home2(){
-  ROS_INFO("Volviendo a casa");
-  MoveBaseClient ac("move_base", true);
-  move_base_msgs::MoveBaseGoal goal;
-  goal.target_pose.header.stamp = ros::Time::now();
-  goal.target_pose.header.frame_id = "/map";
-  goal.target_pose.pose.position.x = 0.0;
-  goal.target_pose.pose.position.y = 0.0;
-  goal.target_pose.pose.orientation.w = 1.0;
-  goal.target_pose.pose.orientation.z = 0.0;
-
-
-     while(!ac.waitForServer(ros::Duration(5.0))){
-        ROS_INFO("cacacacac");
-      }
-      ac.sendGoal(goal);
-        ac.waitForResult();
-      return true;
-}
-
-bool return_ball(){
-  ROS_INFO("Volviendo a casa i dejando pelota ");
-  MoveBaseClient ac("move_base", true);
-  move_base_msgs::MoveBaseGoal goal;
-  goal.target_pose.header.stamp = ros::Time::now();
-  goal.target_pose.header.frame_id = "/map";
-  goal.target_pose.pose.position.x = 0.0;
-  goal.target_pose.pose.position.y = 0.0;
-  goal.target_pose.pose.orientation.w = 0.0;
-  goal.target_pose.pose.orientation.z = 1.0;
-  while(!ac.waitForServer(ros::Duration(5.0))){
-     ROS_INFO("cacacacac");
-   }
-    ac.sendGoal(goal);
-  ac.waitForResult();
-
-
-      if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED)
-            return true;
-      else
-            return false;
-
-}
-
-
 
 void stateCallback(const std_msgs::String state)
 {
@@ -300,10 +239,7 @@ void stateCallback(const std_msgs::String state)
             stop();
 
     }else if(state.data =="HOME_RETURN"){
-        if(STATE=EXPLORING||STATE==STARTED)
             LAST_STATE=STATE;
-        else
-            LAST_STATE=STOPPED;
             STATE=HOME_RETURN;
             publishState();
             stop();
@@ -321,10 +257,6 @@ void stateCallback(const std_msgs::String state)
             STATE=BALL_RECOLECT;
             publishState();
 
-    }else if(state.data =="BALL_RETURN"){
-            RETURN_BALL_ACTIVATION=TRUE;
-            publishState();
-
     }
 }
 
@@ -332,7 +264,7 @@ void batteryCallback(const kobuki_msgs::SensorState state)
 {
       int battery=state.battery;
       //ROS_INFO("Bateria %d",battery);
-      if(BATTERY_LOW==FALSE&&battery<110){
+      if(BATTERY_LOW==FALSE&&battery<100){
             if(STATE==EXPLORING||STATE==STARTED){
               LAST_STATE=STATE;
             }else{
@@ -664,118 +596,23 @@ if (approachCount==0){
       ROS_INFO("8.-Posicio de inicial tancada.");
       usleep(2000000);
 
-            if(RETURN_BALL_ACTIVATION==FALSE){
-                STATE=LAST_STATE;
-                CHANGE_STATE=TRUE;
-                publishState();
-                approachCount=700;
-                ROS_INFO("Volviendo al estado anterior: %d", STATE);
-            }else{
-                STATE=RETURN_BALL;
-                LAST_STATE2=LAST_STATE;
-                CHANGE_STATE=TRUE;
-                publishState();
-            }
 
+
+
+      STATE=LAST_STATE;
+      CHANGE_STATE=TRUE;
+      publishState();
+      approachCount=700;
+
+      ROS_INFO("Volviendo al estado anterior: %d", STATE);
       }
 
 }else{
-  approachCount--;
+approachCount--;
 
 
 }
-if(STATE==RETURN_BALL){
-        ROS_INFO("BALL_RETURN %d",LAST_STATE);
-          for(int i=0;i<200;i++){
-            arm.x=4;
-            arm.y=0;
-            arm.z=0;
-            grip.x=50;
 
-            armPub.publish(arm);
-            gripPub.publish(grip);
-            usleep(10000);
-            gripPub.publish(grip);
-            usleep(10000);
-            gripPub.publish(grip);
-            usleep(10000);
-            gripPub.publish(grip);
-          }
-
-          //Mirar si hay pelotas
-
-
-         ros::spinOnce();
-         LAST_STATE=LAST_STATE2;
-
-        if(ball_detect==TRUE){
-          ROS_INFO("Detecto pelotas e insisto");
-          STATE=LAST_STATE;
-          CHANGE_STATE=TRUE;
-          ROS_INFO("Detecto pelotas e insisto %d",STATE);
-          publishState();
-        }else{
-            publishState();
-            ROS_INFO("No detecto, vuelvo a la base");
-              return_ball();
-              //dejar pelota
-              ROS_INFO("Entro aqui algun dia?");
-              arm.x=10;
-              arm.y=0;
-              arm.z=0;
-              grip.x=50;
-              armPub.publish(arm);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(1000000);
-              armPub.publish(arm);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(1000000);
-
-              arm.x=10;
-              arm.y=0;
-              arm.z=0;
-              grip.x=20;
-              armPub.publish(arm);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(1000000);
-              armPub.publish(arm);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(10000);
-              gripPub.publish(grip);
-              usleep(1000000);
-
-
-              return_home2();
-              STATE=STOPPED;
-              CHANGE_STATE=TRUE;
-              publishState();
-              RETURN_BALL_ACTIVATION=FALSE;
-              ROS_INFO("Finalizado");
-        }
-
-}
 
 
 
